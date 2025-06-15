@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蓝牙指令 代码生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 蓝牙指令 代码生成器</h1>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2 class="section-title">📝 配置参数</h2>
+                
+                <div class="example" style="display: none;">
+                    <div class="example-title">智能命名示例：</div>
+                    <div class="example-code">
+                        输入 "syncData" → 生成 syncDataReqCmd + syncDataRspCmd → 类名: SyncData<br>
+                        输入 "syncDataCmd" → 生成 syncDataReqCmd + syncDataRspCmd → 类名: SyncData<br>
+                        输入 "syncDataReq" → 生成 syncDataReqCmd + syncDataRspCmd → 类名: SyncData<br>
+                        输入 "uploadFile" → 生成 uploadFileReqCmd + uploadFileRspCmd → 类名: UploadFile<br>
+                        <span style="color: #28a745;">✅ 智能识别并统一命名规范，类名自动生成</span>
+                    </div>
+                </div>
+
+                <form id="codeForm">
+                    <div class="form-group">
+                        <label for="description">描述信息</label>
+                        <input type="text" id="description" name="description" placeholder="例: 下发曲谱同步" required>
+                        <small style="color: #666; margin-top: 5px; display: block;">自动为Req和Rsp添加对应后缀</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enumName">枚举项名称：</label>
+                        <input type="text" id="enumName" name="enumName" placeholder="例: syncData 或 syncDataCmd 或 syncDataReq" required>
+                        <small style="color: #666; margin-top: 5px; display: block;">支持多种格式：基础名、带Cmd后缀、带Req/Rsp后缀等</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mainCmd">MainCmd：</label>
+                        <select id="mainCmd" name="mainCmd" required onchange="onMainCmdChange(this.value)">
+                            <!-- 选项将通过 JS 动态生成 -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subCmd">SubCmd：</label>
+                        <select id="subCmd" name="subCmd" required onchange="onSubCmdChange(this.value)">
+                            <!-- 选项将通过 JS 动态生成 -->
+                        </select>
+                    </div>
+
+
+
+                    <div class="form-group" style="display: none;">
+                        <label for="className">Java/Kotlin 类名前缀 (自动生成)：</label>
+                        <input type="text" id="className" name="className" placeholder="例: SyncData">
+                        <small style="color: #666; margin-top: 5px; display: block;">🤖 根据枚举名称自动生成，首字母大写，可手动修改</small>
+                    </div>
+
+                    <div class="form-group" style="display: none;">
+                        <label for="minVersion">最小版本支持 (可选)：</label>
+                        <input type="number" id="minVersion" name="minVersion" placeholder="默认: 0" min="0" value="0">
+                    </div>
+
+                    <div class="form-group" style="display: none;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="generateClasses" name="generateClasses" style="width: auto; margin-right: 10px;" checked>
+                            <span>📦 自动生成 Req 和 Rsp 类文件</span>
+                        </label>
+                        <small style="color: #666; margin-top: 5px; display: block;">选中此选项将同时生成对应的类文件</small>
+                    </div>
+
+                    <div class="form-group" style="display: none;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="generateService" name="generateService" style="width: auto; margin-right: 10px;" onchange="toggleServiceConfigVisibility()" checked>
+                            <span>🔧 自动生成 Service 调用层代码</span>
+                        </label>
+                        <small style="color: #666; margin-top: 5px; display: block;">基于模板生成调用层service方法</small>
+                    </div>
+
+                    <div id="serviceConfig" class="form-group">
+                        <label style="display: none; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleServiceConfig()" ">
+                            <span>🔧 Service 配置</span>
+                            <span id="serviceToggleIcon" style="font-size: 12px; color: #666;">▶ 点击展开</span>
+                        </label>
+                        <div id="serviceConfigContent" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                        
+                        <div style="margin-top: 10px;">
+                            <label for="serviceName">Service 类名 (自动生成)</label>
+                            <input type="text" id="serviceName" class="form-control" value="AiResService" placeholder="例如: AiResService">
+                            <small style="color: #666; margin-top: 5px; display: block;">🤖 根据MainCmd括号内容自动生成，可手动修改</small>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label for="servicePackage">Service 包名</label>
+                            <input type="text" id="servicePackage" class="form-control" value="com.tempolor.aimusic.proto" placeholder="例如: com.tempolor.aimusic.proto">
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label>Service 类型</label>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="generateClientService" checked>
+                                    <label for="generateClientService">生成 Client Service</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="generateServerService" checked>
+                                    <label for="generateServerService">生成 Server Service</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label>Client 方法类型</label>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="includeInChunk" checked>
+                                    <label for="includeInChunk">包含 InChunk 方法</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="includeWithResponse" checked>
+                                    <label for="includeWithResponse">包含 WithResponse 方法</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label>Server 方法类型</label>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="includeServerSupReq" checked>
+                                    <label for="includeServerSupReq">包含 SupReqInQueueEx 方法</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="includeServerSendData" checked>
+                                    <label for="includeServerSendData">包含 SendData 方法</label>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div id="classConfig" class="form-group">
+                        <label>类模板选择：</label>
+                        <select id="templateType" class="template-select">
+                            <option value="empty">空类（无字段）</option>
+                            <option value="custom">自定义字段</option>
+                        </select>
+
+                        <div id="customFields" style="display: none;">
+                            <div style="background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                                <h4 style="color: #0c5460; margin: 0 0 10px 0;">💡 字符串长度优化功能</h4>
+                                <p style="color: #0c5460; margin: 0; font-size: 14px; line-height: 1.5;">
+                                    对于String和MutableList&lt;String&gt;类型，可选择长度前缀字节数（1-4字节），根据实际数据长度选择合适的配置以优化存储空间。
+                                </p>
+                            </div>
+                            
+                            <!-- Req 字段配置 -->
+                            <div style="margin-top: 15px;">
+                                <label style="color: #667eea; font-weight: 600;">🔵 Req 类字段配置：</label>
+                                <div class="field-list" id="reqFieldList">
+                                    <!-- Req 字段列表将在这里动态生成 -->
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <button type="button" onclick="addField('req')" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">+ 添加 Req 字段</button>
+                                </div>
+                               
+                            </div>
+
+                            <!-- Rsp 字段配置 -->
+                            <div style="margin-top: 25px;">
+                                <label style="color: #28a745; font-weight: 600;">🟢 Rsp 类字段配置：</label>
+                                <div class="field-list" id="rspFieldList">
+                                    <!-- Rsp 字段列表将在这里动态生成 -->
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <button type="button" onclick="addField('rsp')" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">+ 添加 Rsp 字段</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">🚀 生成代码</button>
+                </form>
+            </div>
+
+            <div class="output-section">
+                <div style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin: 0;">📄 生成的代码</h2>
+                    <button onclick="showUsageGuide()" style="background: #667eea; color: white; border: none; border-radius: 4px; padding: 8px 15px; cursor: pointer; font-size: 14px;">❓ 使用说明</button>
+                </div>
+                
+                <div class="output-tabs">
+                    <button class="tab active" onclick="switchTab('enumCode', this)">枚举项</button>
+                    <button class="tab" onclick="switchTab('reqClassCode', this)">Req 类</button>
+                    <button class="tab" onclick="switchTab('rspClassCode', this)">Rsp 类</button>
+                    <button class="tab" onclick="switchTab('dartReqClassCode', this)">Dart Req 类</button>
+                    <button class="tab" onclick="switchTab('dartRspClassCode', this)">Dart Rsp 类</button>
+                    <button class="tab" onclick="switchTab('clientServiceCode', this)">Client Service</button>
+                    <button class="tab" onclick="switchTab('serverServiceCode', this)">Server Service</button>
+                </div>
+
+                <div id="enumCode" class="tab-content active">
+                    <pre class="output" id="generatedCode">// 点击"生成代码"按钮开始生成...</pre>
+                </div>
+
+                <div id="reqClassCode" class="tab-content">
+                    <pre class="output" id="reqClassCode">// Req 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="rspClassCode" class="tab-content">
+                    <pre class="output" id="rspClassCode">// Rsp 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="dartReqClassCode" class="tab-content">
+                    <pre class="output" id="dartReqClassCode">// Dart Req 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="dartRspClassCode" class="tab-content">
+                    <pre class="output" id="dartRspClassCode">// Dart Rsp 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="clientServiceCode" class="tab-content">
+                    <pre class="output" id="clientServiceCode">// Client Service 代码将在这里显示...</pre>
+                </div>
+
+                <div id="serverServiceCode" class="tab-content">
+                    <pre class="output" id="serverServiceCode">// Server Service 代码将在这里显示...</pre>
+                </div>
+
+                <!-- 操作按钮组 -->
+                <div class="action-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                    <button class="copy-btn" id="copyBtn" onclick="copyCode()">📋 复制当前代码</button>
+                    <button class="download-btn" onclick="downloadCurrentCode()">💾 下载当前文件</button>
+                    <button class="download-all-btn" onclick="downloadAllFiles()">📁 下载所有文件</button>
+                    <button class="export-config-btn" onclick="exportProjectConfig()">⚙️ 导出配置</button>
+                    <button class="import-config-btn" onclick="importProjectConfig()">📥 导入配置</button>
+                </div>
+                
+                <!-- 拖拽提示 -->
+                <div class="drag-hint">
+                    <small>💡 小贴士：也可以直接拖拽JSON配置文件到页面任意位置进行导入</small>
+                </div>
+                
+                <!-- 隐藏的文件输入元素 -->
+                <input type="file" id="configFileInput" accept=".json" style="display: none;" onchange="handleConfigFileSelect(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- 拖拽覆盖层 -->
+    <div id="dragOverlay" class="drag-overlay" style="display: none;">
+        <div class="drag-content">
+            <div class="drag-icon">📁</div>
+            <h3>拖拽JSON配置文件到此处</h3>
+            <p>松开鼠标即可导入配置</p>
+            <div class="drag-animation">
+                <div class="drag-wave"></div>
+                <div class="drag-wave"></div>
+                <div class="drag-wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript文件引用 -->
+    <script src="js/main-cmd-config.js"></script>
+    <script src="js/sub-cmd-config.js"></script>
+    <script src="js/field-manager.js"></script>
+    <script src="js/serialization.js"></script>
+    <script src="js/code-generators.js"></script>
+    <script src="js/service-generators.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/debug-helper.js"></script>
+    <script src="js/file-downloader.js"></script>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 

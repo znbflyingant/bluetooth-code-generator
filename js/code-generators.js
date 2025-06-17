@@ -44,7 +44,7 @@ function generateClassCode(className, fields = [], isReq = true, enumBaseName = 
     
     if (isReq) {
         // 生成 Req 类
-        let code = `package ${packageName}
+        let code = `
 
 import com.tempolor.aimusic.base.LogHelper
 import com.tempolor.aimusic.proto.base.CommonProtoBase
@@ -146,7 +146,7 @@ ${fields.length > 0 ? generateToJsonCode(fields) : ''}
         return code;
     } else {
         // 生成 Rsp 类
-        let code = `package ${packageName}
+        let code = `
 
 import com.tempolor.aimusic.base.LogHelper
 import com.tempolor.aimusic.proto.base.CommonProtoRsp

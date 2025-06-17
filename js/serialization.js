@@ -13,7 +13,7 @@ function generateFromByteArrayCode(fields) {
             case 'String':
                 const stringLengthBytes = field.stringLengthBytes || 1;
                 if (stringLengthBytes === 1) {
-                    code += `                var ${fieldName}Size = (byteArray[${position}].toUByte()).toInt()\n`;
+                    code += `                var ${fieldName}Size = (byteArray[${position}].toInt() and 0xFF)\n`;
                 } else if (stringLengthBytes === 2) {
                     code += `                var ${fieldName}Size = CmdHelper.byte2ToInt(byteArray.sliceArray(${position}..${typeof position === 'string' ? `(${position} + 1)` : `${position + 1}`}))\n`;
                 } else if (stringLengthBytes === 3) {
@@ -22,7 +22,11 @@ function generateFromByteArrayCode(fields) {
                     code += `                var ${fieldName}Size = CmdHelper.byte4ToInt(byteArray.sliceArray(${position}..${typeof position === 'string' ? `(${position} + 3)` : `${position + 3}`}))\n`;
                 }
                 code += `                if (${fieldName}Size > 0) {\n`;
-                code += `                    var ${fieldName}Bytes = byteArray.sliceArray(${typeof position === 'string' ? `${position} + ${stringLengthBytes}` : `${position + stringLengthBytes}`}..${typeof position === 'string' ? `(${position} + ${stringLengthBytes})` : `(${position + stringLengthBytes})`} + ${fieldName}Size - 1)\n`;
+                if (typeof position === 'string') {
+                    code += `                    var ${fieldName}Bytes = byteArray.sliceArray((${position} + ${stringLengthBytes})..(${position} + ${stringLengthBytes} + ${fieldName}Size - 1))\n`;
+                } else {
+                    code += `                    var ${fieldName}Bytes = byteArray.sliceArray(${position + stringLengthBytes}..${position + stringLengthBytes} + ${fieldName}Size - 1)\n`;
+                }
                 code += `                    ${fieldName} = String(${fieldName}Bytes)\n`;
                 code += `                }\n`;
                 position = `${typeof position === 'string' ? position : position} + ${stringLengthBytes} + ${fieldName}Size`;
@@ -44,7 +48,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'Int1':
-                code += `                ${fieldName} = CmdHelper.byte1ToInt(byteArray[${position}])\n`;
+                code += `                ${fieldName} = CmdHelper.byte1ToInt(byteArray.sliceArray(${position}..${position}))\n`;
                 position = typeof position === 'string' ? `${position} + 1` : position + 1;
                 break;
                 
@@ -79,21 +83,25 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'ByteArray':
-                code += `                var ${fieldName}Size = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Size = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                if (${fieldName}Size > 0) {\n`;
-                code += `                    ${fieldName} = byteArray.sliceArray(${position + 1}..${position + 1} + ${fieldName}Size - 1)\n`;
+                if (typeof position === 'string') {
+                    code += `                    ${fieldName} = byteArray.sliceArray((${position} + 1)..(${position} + 1 + ${fieldName}Size - 1))\n`;
+                } else {
+                    code += `                    ${fieldName} = byteArray.sliceArray(${position + 1}..${position + 1} + ${fieldName}Size - 1)\n`;
+                }
                 code += `                }\n`;
                 position = `${position} + 1 + ${fieldName}Size`;
                 break;
                 
             case 'MutableList<String>':
                 const listStringLengthBytes = field.stringLengthBytes || 1;
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<String>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
                 if (listStringLengthBytes === 1) {
-                    code += `                    var itemSize = (byteArray[${fieldName}Position].toUByte()).toInt()\n`;
+                    code += `                    var itemSize = (byteArray[${fieldName}Position].toInt() and 0xFF)\n`;
                 } else if (listStringLengthBytes === 2) {
                     code += `                    var itemSize = CmdHelper.byte2ToInt(byteArray.sliceArray(${fieldName}Position..${fieldName}Position + 1))\n`;
                 } else if (listStringLengthBytes === 3) {
@@ -111,7 +119,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int>':
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<Int>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
@@ -123,7 +131,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int3>':
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<Int>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
@@ -135,7 +143,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int2>':
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<Int>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
@@ -147,11 +155,11 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int1>':
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<Int>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
-                code += `                    var item = CmdHelper.byte1ToInt(byteArray[${fieldName}Position])\n`;
+                code += `                    var item = CmdHelper.byte1ToInt(byteArray.sliceArray(${fieldName}Position..${fieldName}Position))\n`;
                 code += `                    ${fieldName}?.add(item)\n`;
                 code += `                    ${fieldName}Position += 1\n`;
                 code += `                }\n`;
@@ -159,7 +167,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Byte>':
-                code += `                var ${fieldName}Count = (byteArray[${position}].toUByte()).toInt()\n`;
+                code += `                var ${fieldName}Count = (byteArray[${position}].toInt() and 0xFF)\n`;
                 code += `                ${fieldName} = mutableListOf<Byte>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;

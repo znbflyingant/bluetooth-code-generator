@@ -71,25 +71,107 @@ function switchTab(tabName, clickedElement) {
     }
 }
 
+
+
 // 复制代码
 function copyCode() {
-    const activeTab = document.querySelector('.tab-content.active');
-    const codeElement = activeTab.querySelector('.output');
-    const text = codeElement.textContent;
-    
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
+    try {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (!activeTab) {
+            throw new Error('没有找到活动的标签页。请确保已经生成了代码。');
+        }
+        
+        // 尝试多种方式找到代码输出元素
+        let codeElement = activeTab.querySelector('.output');
+        if (!codeElement) {
+            codeElement = activeTab.querySelector('pre');
+        }
+        if (!codeElement) {
+            codeElement = activeTab.querySelector('pre.output');
+        }
+        
+        if (!codeElement) {
+            console.error('无法找到代码输出元素，活动标签页:', activeTab);
+            throw new Error('没有找到代码输出元素。请刷新页面重试。');
+        }
+        
+        const text = codeElement.textContent || codeElement.innerText;
+        if (!text || text.trim() === '' || text.includes('点击"生成代码"按钮开始生成') || text.includes('代码将在这里显示')) {
+            throw new Error('没有可复制的代码内容。请先点击"生成代码"按钮。');
+        }
+        
+        // 优先使用现代的 Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopySuccess();
+            }).catch(err => {
+                console.error('Clipboard API 复制失败:', err);
+                fallbackCopyTextToClipboard(text);
+            });
+        } else {
+            // 回退到传统方法
+            console.log('使用传统复制方法');
+            fallbackCopyTextToClipboard(text);
+        }
+    } catch (err) {
+        console.error('复制操作失败:', err);
+        alert('复制失败: ' + err.message);
+    }
+}
+
+// 传统的复制方法（兼容旧浏览器）
+function fallbackCopyTextToClipboard(text) {
+    try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // 避免滚动到底部
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.width = "2em";
+        textArea.style.height = "2em";
+        textArea.style.padding = "0";
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+            showCopySuccess();
+        } else {
+            throw new Error('execCommand 复制失败');
+        }
+    } catch (err) {
+        console.error('传统复制方法失败:', err);
+        alert('复制失败，请手动复制代码');
+    }
+}
+
+// 显示复制成功状态
+function showCopySuccess() {
+    const btn = document.getElementById('copyBtn');
+    if (btn) {
+        const originalText = btn.textContent;
+        const originalBackground = btn.style.background;
+        
         btn.textContent = '✅ 已复制';
         btn.style.background = '#28a745';
+        btn.disabled = true;
         
         setTimeout(() => {
             btn.textContent = '📋 复制当前代码';
-            btn.style.background = '#28a745';
+            btn.style.background = originalBackground || '#28a745';
+            btn.disabled = false;
         }, 2000);
-    }).catch(err => {
-        console.error('复制失败:', err);
-        alert('复制失败，请手动复制');
-    });
+    }
 }
 
 // 显示字符串长度选项
@@ -360,12 +442,12 @@ function beautifyCode(code) {
 function ensureCodeOutputStyles() {
     const outputElements = [
         'generatedCode',
-        'reqClassCode', 
-        'rspClassCode',
-        'dartReqClassCode',
-        'dartRspClassCode',
-        'clientServiceCode',
-        'serverServiceCode'
+        'reqClassCodeOutput', 
+        'rspClassCodeOutput',
+        'dartReqClassCodeOutput',
+        'dartRspClassCodeOutput',
+        'clientServiceCodeOutput',
+        'serverServiceCodeOutput'
     ];
     
     outputElements.forEach(id => {
@@ -447,12 +529,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 监听所有代码输出区域的变化
     const outputElements = [
         'generatedCode',
-        'reqClassCode', 
-        'rspClassCode',
-        'dartReqClassCode',
-        'dartRspClassCode',
-        'clientServiceCode',
-        'serverServiceCode'
+        'reqClassCodeOutput', 
+        'rspClassCodeOutput',
+        'dartReqClassCodeOutput',
+        'dartRspClassCodeOutput',
+        'clientServiceCodeOutput',
+        'serverServiceCodeOutput'
     ];
     
     outputElements.forEach(id => {

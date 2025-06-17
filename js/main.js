@@ -179,11 +179,11 @@ ${rspCode}`;
         // 生成类代码
         if (reqClassName) {
             const reqClassCode = generateClassCode(reqClassName, reqFields, true, baseName, enumType);
-            document.getElementById('reqClassCode').textContent = reqClassCode;
+            document.getElementById('reqClassCodeOutput').textContent = reqClassCode;
         }
         if (rspClassName) {
             const rspClassCode = generateClassCode(rspClassName, rspFields, false, baseName, enumType);
-            document.getElementById('rspClassCode').textContent = rspClassCode;
+            document.getElementById('rspClassCodeOutput').textContent = rspClassCode;
         }
         
         // 确保类代码样式正确
@@ -194,11 +194,11 @@ ${rspCode}`;
         // 生成Dart类代码
         if (reqClassName) {
             const dartReqClassCode = generateDartClassCode(reqClassName, reqFields, true, baseName, enumType);
-            document.getElementById('dartReqClassCode').textContent = dartReqClassCode;
+            document.getElementById('dartReqClassCodeOutput').textContent = dartReqClassCode;
         }
         if (rspClassName) {
             const dartRspClassCode = generateDartClassCode(rspClassName, rspFields, false, baseName, enumType);
-            document.getElementById('dartRspClassCode').textContent = dartRspClassCode;
+            document.getElementById('dartRspClassCodeOutput').textContent = dartRspClassCode;
         }
         
         // 确保Dart代码样式正确
@@ -214,20 +214,20 @@ ${rspCode}`;
         
         if (generateClientService) {
             const clientServiceCode = generateClientServiceCode(true, reqClassName, rspClassName, baseName);
-            document.getElementById('clientServiceCode').textContent = clientServiceCode;
+            document.getElementById('clientServiceCodeOutput').textContent = clientServiceCode;
         } else {
-            document.getElementById('clientServiceCode').textContent = '// 未选择生成 Client Service';
+            document.getElementById('clientServiceCodeOutput').textContent = '// 未选择生成 Client Service';
         }
         
         if (generateServerService) {
             const serverServiceCode = generateServerServiceCode(true, reqClassName, rspClassName, baseName);
-            document.getElementById('serverServiceCode').textContent = serverServiceCode;
+            document.getElementById('serverServiceCodeOutput').textContent = serverServiceCode;
         } else {
-            document.getElementById('serverServiceCode').textContent = '// 未选择生成 Server Service';
+            document.getElementById('serverServiceCodeOutput').textContent = '// 未选择生成 Server Service';
         }
     } else {
-        document.getElementById('clientServiceCode').textContent = '// 未选择生成 Service';
-        document.getElementById('serverServiceCode').textContent = '// 未选择生成 Service';
+        document.getElementById('clientServiceCodeOutput').textContent = '// 未选择生成 Service';
+        document.getElementById('serverServiceCodeOutput').textContent = '// 未选择生成 Service';
     }
     
     // 最终确保所有代码区域样式正确

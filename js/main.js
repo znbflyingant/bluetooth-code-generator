@@ -230,6 +230,11 @@ ${rspCode}`;
         document.getElementById('serverServiceCodeOutput').textContent = '// 未选择生成 Service';
     }
     
+    // 生成JSON测试数据
+    if (typeof generateJsonTestDataForBoth === 'function') {
+        generateJsonTestDataForBoth();
+    }
+    
     // 最终确保所有代码区域样式正确
     if (typeof ensureCodeOutputStyles === 'function') {
         setTimeout(ensureCodeOutputStyles, 100); // 延迟执行确保DOM更新完成

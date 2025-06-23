@@ -185,7 +185,10 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn">🚀 生成代码</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" onclick="addAllFieldTypes()" style="background: #ff6b35; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; flex: 1; min-width: 200px;">🎯 一键添加所有类型</button>
+                        <button type="submit" class="btn" style="flex: 1; min-width: 150px;">🚀 生成代码</button>
+                    </div>
                 </form>
             </div>
 
@@ -203,6 +206,8 @@
                     <button class="tab" onclick="switchTab('dartRspClassCode', this)">Dart Rsp 类</button>
                     <button class="tab" onclick="switchTab('clientServiceCode', this)">Client Service</button>
                     <button class="tab" onclick="switchTab('serverServiceCode', this)">Server Service</button>
+                    <button class="tab" onclick="switchTab('reqJsonTestData', this)">📋 Req 测试JSON</button>
+                    <button class="tab" onclick="switchTab('rspJsonTestData', this)">📋 Rsp 测试JSON</button>
                 </div>
 
                 <div id="enumCode" class="tab-content active">
@@ -233,11 +238,19 @@
                     <pre class="output" id="serverServiceCodeOutput">// Server Service 代码将在这里显示...</pre>
                 </div>
 
+                <div id="reqJsonTestData" class="tab-content">
+                    <pre class="output" id="reqJsonTestDataOutput">// Req JSON测试数据将在这里显示...</pre>
+                </div>
+
+                <div id="rspJsonTestData" class="tab-content">
+                    <pre class="output" id="rspJsonTestDataOutput">// Rsp JSON测试数据将在这里显示...</pre>
+                </div>
+
                 <!-- 操作按钮组 -->
                 <div class="action-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                     <button class="copy-btn" id="copyBtn" onclick="copyCode()">📋 复制当前代码</button>
                     <button class="download-btn" onclick="downloadCurrentCode()">💾 下载当前文件</button>
-                    <button class="download-all-btn" onclick="downloadAllFiles()">📁 下载所有文件</button>
+                    <button class="download-all-btn" onclick="downloadAllFiles()">📦 下载压缩包</button>
                     <button class="export-config-btn" onclick="exportProjectConfig()">⚙️ 导出配置</button>
                     <button class="import-config-btn" onclick="importProjectConfig()">📥 导入配置</button>
                 </div>
@@ -267,13 +280,18 @@
         </div>
     </div>
 
+    <!-- 引入JSZip库用于创建压缩包 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
     <!-- JavaScript文件引用 -->
     <script src="js/main-cmd-config.js"></script>
     <script src="js/sub-cmd-config.js"></script>
     <script src="js/field-manager.js"></script>
     <script src="js/serialization.js"></script>
     <script src="js/code-generators.js"></script>
+    <script src="js/dart-generators.js"></script>
     <script src="js/service-generators.js"></script>
+    <script src="js/json-test-generator.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/debug-helper.js"></script>
     <script src="js/file-downloader.js"></script>

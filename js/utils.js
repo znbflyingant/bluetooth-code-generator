@@ -1,30 +1,5 @@
 // 工具函数和事件监听器
 
-// 映射到Dart类型
-function mapToDartType(kotlinType) {
-    const typeMap = {
-        'String': 'String?',
-        'Int': 'int?',
-        'Int3': 'int?',
-        'Int2': 'int?',
-        'Int1': 'int?',
-        'Long': 'int?',
-        'Short': 'int?',
-        'Byte': 'int?',
-        'Boolean': 'bool?',
-        'Float': 'double?',
-        'Double': 'double?',
-        'ByteArray': 'Uint8List?',
-        'MutableList<String>': 'List<String>?',
-        'MutableList<Int>': 'List<int>?',
-        'MutableList<Int3>': 'List<int>?',
-        'MutableList<Int2>': 'List<int>?',
-        'MutableList<Int1>': 'List<int>?',
-        'MutableList<Byte>': 'List<int>?'
-    };
-    return typeMap[kotlinType] || 'dynamic';
-}
-
 // 切换标签页
 function switchTab(tabName, clickedElement) {
     console.log('切换Tab:', tabName); // 调试信息
@@ -447,7 +422,9 @@ function ensureCodeOutputStyles() {
         'dartReqClassCodeOutput',
         'dartRspClassCodeOutput',
         'clientServiceCodeOutput',
-        'serverServiceCodeOutput'
+        'serverServiceCodeOutput',
+        'reqJsonTestDataOutput',
+        'rspJsonTestDataOutput'
     ];
     
     outputElements.forEach(id => {

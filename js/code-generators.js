@@ -4,9 +4,9 @@
 function generateFieldComment(fieldType, field) {
     const baseComments = {
         'Int': '4字节整数类型，JSON中为数字',
-        'Int3': '3字节整数类型，使用 CmdHelper.int3ToByte 转换（节省空间，范围: 0-16,777,215），JSON中为数字',
-        'Int2': '2字节整数类型，使用 CmdHelper.int2ToByte 转换（节省空间，范围: 0-65,535），JSON中为数字',
-        'Int1': '1字节整数类型，使用 CmdHelper.int1ToByte 转换（节省空间，范围: 0-255），JSON中为数字',
+        'Int3': '3字节整数类型，使用 CmdHelper.intToByte3 转换（节省空间，范围: 0-16,777,215），JSON中为数字',
+        'Int2': '2字节整数类型，使用 CmdHelper.intToByte2 转换（节省空间，范围: 0-65,535），JSON中为数字',
+        'Int1': '1字节整数类型，使用 CmdHelper.intToByte1 转换（节省空间，范围: 0-255），JSON中为数字',
         'Long': '长整数类型，使用 CmdHelper.longToByte 转换，JSON中为数字',
         'Short': '短整数类型，使用 CmdHelper.shortToByte 转换，JSON中为数字',
         'Byte': '字节类型，直接转换，JSON中为数字',

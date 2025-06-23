@@ -1,0 +1,150 @@
+{
+  "id": "0x02_0x00",
+  "description": "test",
+  "exportTime": "2025-06-23T10:24:20.237Z",
+  "mainCmd": "0x02",
+  "subCmd": "0x00",
+  "enumName": "Test",
+  "mainCmdInfo": {
+    "value": "MainCmd.aiRes",
+    "enumType": "AiResEnum",
+    "serviceName": "AiResService",
+    "description": "AI资源相关命令"
+  },
+  "subCmdInfo": {
+    "decimal": 0,
+    "display": "0 (0x00)"
+  },
+  "fields": {
+    "req": [
+      {
+        "name": "userName",
+        "type": "String",
+        "stringLengthBytes": 2
+      },
+      {
+        "name": "shortId",
+        "type": "String",
+        "stringLengthBytes": 1
+      },
+      {
+        "name": "userId",
+        "type": "Int"
+      },
+      {
+        "name": "count",
+        "type": "Int3"
+      },
+      {
+        "name": "status",
+        "type": "Int2"
+      },
+      {
+        "name": "flag",
+        "type": "Int1"
+      },
+      {
+        "name": "nameList",
+        "type": "MutableList<String>",
+        "stringLengthBytes": 2
+      },
+      {
+        "name": "idList",
+        "type": "MutableList<Int>"
+      },
+      {
+        "name": "countList",
+        "type": "MutableList<Int3>"
+      },
+      {
+        "name": "statusList",
+        "type": "MutableList<Int2>"
+      },
+      {
+        "name": "flagList",
+        "type": "MutableList<Int1>"
+      }
+    ],
+    "rsp": [
+      {
+        "name": "userName",
+        "type": "String",
+        "stringLengthBytes": 2
+      },
+      {
+        "name": "shortId",
+        "type": "String",
+        "stringLengthBytes": 1
+      },
+      {
+        "name": "userId",
+        "type": "Int"
+      },
+      {
+        "name": "count",
+        "type": "Int3"
+      },
+      {
+        "name": "status",
+        "type": "Int2"
+      },
+      {
+        "name": "flag",
+        "type": "Int1"
+      },
+      {
+        "name": "timestamp",
+        "type": "Long"
+      },
+      {
+        "name": "port",
+        "type": "Short"
+      },
+      {
+        "name": "code",
+        "type": "Byte"
+      },
+      {
+        "name": "rate",
+        "type": "Float"
+      },
+      {
+        "name": "value",
+        "type": "Double"
+      },
+      {
+        "name": "isActive",
+        "type": "Boolean"
+      },
+      {
+        "name": "data",
+        "type": "ByteArray"
+      },
+      {
+        "name": "nameList",
+        "type": "MutableList<String>",
+        "stringLengthBytes": 2
+      },
+      {
+        "name": "idList",
+        "type": "MutableList<Int>"
+      },
+      {
+        "name": "countList",
+        "type": "MutableList<Int3>"
+      },
+      {
+        "name": "statusList",
+        "type": "MutableList<Int2>"
+      },
+      {
+        "name": "flagList",
+        "type": "MutableList<Int1>"
+      },
+      {
+        "name": "byteList",
+        "type": "MutableList<Byte>"
+      }
+    ]
+  }
+}

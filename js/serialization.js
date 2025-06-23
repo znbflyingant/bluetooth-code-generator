@@ -33,7 +33,7 @@ function generateFromByteArrayCode(fields) {
                 break;
                 
             case 'Int':
-                code += `                ${fieldName} = CmdHelper.byteToInt(byteArray.sliceArray(${position}..${typeof position === 'string' ? `(${position} + 3)` : `${position + 3}`}))\n`;
+                code += `                ${fieldName} = CmdHelper.byte4ToInt(byteArray.sliceArray(${position}..${typeof position === 'string' ? `(${position} + 3)` : `${position + 3}`}))\n`;
                 position = typeof position === 'string' ? `${position} + 4` : position + 4;
                 break;
                 
@@ -123,7 +123,7 @@ function generateFromByteArrayCode(fields) {
                 code += `                ${fieldName} = mutableListOf<Int>()\n`;
                 code += `                var ${fieldName}Position = ${position} + 1\n`;
                 code += `                for (i in 0 until ${fieldName}Count) {\n`;
-                code += `                    var item = CmdHelper.byteToInt(byteArray.sliceArray(${fieldName}Position..${fieldName}Position + 3))\n`;
+                code += `                    var item = CmdHelper.byte1ToInt(byteArray.sliceArray(${fieldName}Position..${fieldName}Position + 3))\n`;
                 code += `                    ${fieldName}?.add(item)\n`;
                 code += `                    ${fieldName}Position += 4\n`;
                 code += `                }\n`;
@@ -208,15 +208,15 @@ function generateToByteArrayCode(fields) {
                 if (stringLengthBytes === 1) {
                     code += `(${fieldName}?.let { byteArrayOf(it.toByteArray().size.toByte()) + it.toByteArray() } ?: byteArrayOf(0))`;
                 } else if (stringLengthBytes === 2) {
-                    code += `(${fieldName}?.let { CmdHelper.int2ToByte(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.int2ToByte(0))`;
+                    code += `(${fieldName}?.let { CmdHelper.intToByte2(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.intToByte2(0))`;
                 } else if (stringLengthBytes === 3) {
-                    code += `(${fieldName}?.let { CmdHelper.int3ToByte(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.int3ToByte(0))`;
+                    code += `(${fieldName}?.let { CmdHelper.intToByte3(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.intToByte3(0))`;
                 } else if (stringLengthBytes === 4) {
-                    code += `(${fieldName}?.let { CmdHelper.int4ToByte(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.int4ToByte(0))`;
+                    code += `(${fieldName}?.let { CmdHelper.intToByte4(it.toByteArray().size) + it.toByteArray() } ?: CmdHelper.intToByte4(0))`;
                 }
                 break;
             case 'Int':
-                code += `CmdHelper.intToByte(${fieldName} ?: 0)`;
+                code += `CmdHelper.intToByte4(${fieldName} ?: 0)`;
                 break;
             case 'Int3':
                 code += `CmdHelper.intToByte3(${fieldName} ?: 0)`;
@@ -253,15 +253,15 @@ function generateToByteArrayCode(fields) {
                 if (listStringLengthBytes === 1) {
                     code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + byteArrayOf(item.toByteArray().size.toByte()) + item.toByteArray() } ?: byteArrayOf())`;
                 } else if (listStringLengthBytes === 2) {
-                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.int2ToByte(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
+                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte2(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
                 } else if (listStringLengthBytes === 3) {
-                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.int3ToByte(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
+                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte3(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
                 } else if (listStringLengthBytes === 4) {
-                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.int4ToByte(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
+                    code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte4(item.toByteArray().size) + item.toByteArray() } ?: byteArrayOf())`;
                 }
                 break;
             case 'MutableList<Int>':
-                code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte(item) } ?: byteArrayOf())`;
+                code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte4(item) } ?: byteArrayOf())`;
                 break;
             case 'MutableList<Int3>':
                 code += `byteArrayOf((${fieldName}?.size ?: 0).toByte()) +\n                (${fieldName}?.fold(byteArrayOf()) { acc, item -> acc + CmdHelper.intToByte3(item) } ?: byteArrayOf())`;

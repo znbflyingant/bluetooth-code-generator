@@ -73,10 +73,16 @@ class FileDownloader {
     }
     
     /**
-     * 批量下载所有生成的文件
+     * 下载所有生成的文件为压缩包
      */
-    static downloadAllFiles() {
+    static async downloadAllFiles() {
         try {
+            // 检查JSZip是否可用
+            if (typeof JSZip === 'undefined') {
+                this.showToast('❌ JSZip库未加载，无法创建压缩包', 'error');
+                return;
+            }
+
             const filesToDownload = [];
             const tabs = document.querySelectorAll('.tab');
             
@@ -87,7 +93,9 @@ class FileDownloader {
                 
                 if (content && content.textContent.trim() && 
                     !content.textContent.includes('点击"生成代码"按钮开始生成') &&
-                    !content.textContent.includes('代码将在这里显示')) {
+                    !content.textContent.includes('代码将在这里显示') &&
+                    !content.textContent.includes('请选择"自定义字段"模板') &&
+                    !content.textContent.includes('请先添加')) {
                     
                     const { filename, mimeType } = this.getFileInfo(tabText, content.textContent);
                     filesToDownload.push({
@@ -102,20 +110,118 @@ class FileDownloader {
                 this.showToast('❌ 没有可下载的文件，请先生成代码', 'error');
                 return;
             }
+
+            // 显示进度提示
+            this.showToast('📦 正在创建压缩包...', 'info');
             
-            // 延迟下载避免浏览器阻止
-            filesToDownload.forEach((file, index) => {
-                setTimeout(() => {
-                    this.downloadTextFile(file.content, file.filename, file.mimeType);
-                }, index * 200); // 200ms间隔
+            // 创建ZIP压缩包
+            const zip = new JSZip();
+            
+            // 创建文件夹结构
+            const kotlinFolder = zip.folder("kotlin");
+            const dartFolder = zip.folder("dart");
+            const serviceFolder = zip.folder("service");
+            const testDataFolder = zip.folder("test-data");
+            
+            // 根据文件类型添加到对应文件夹
+            filesToDownload.forEach(file => {
+                const filename = file.filename;
+                const content = file.content;
+                
+                if (filename.includes('Enum') || filename.includes('enum')) {
+                    // 枚举文件放在根目录
+                    zip.file(filename, content);
+                } else if (filename.includes('Req.kt') || filename.includes('Rsp.kt')) {
+                    // Kotlin类文件
+                    kotlinFolder.file(filename, content);
+                } else if (filename.includes('Req.dart') || filename.includes('Rsp.dart')) {
+                    // Dart类文件
+                    dartFolder.file(filename, content);
+                } else if (filename.includes('Service')) {
+                    // Service文件
+                    serviceFolder.file(filename, content);
+                } else if (filename.includes('JSON') || filename.includes('json') || filename.includes('测试')) {
+                    // JSON测试数据
+                    testDataFolder.file(filename, content);
+                } else {
+                    // 其他文件放在根目录
+                    zip.file(filename, content);
+                }
             });
             
-            this.showToast(`✅ 开始下载 ${filesToDownload.length} 个文件`, 'success');
+            // 添加README文件
+            const readmeContent = this.generateReadmeContent(filesToDownload);
+            zip.file("README.md", readmeContent);
+            
+            // 生成压缩包
+            const zipBlob = await zip.generateAsync({
+                type: "blob",
+                compression: "DEFLATE",
+                compressionOptions: {
+                    level: 6
+                }
+            });
+            
+            // 生成下载文件名
+            const enumName = document.getElementById('enumName')?.value?.trim() || 'Generated';
+            const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            const zipFilename = `${enumName}_${timestamp}.zip`;
+            
+            // 下载压缩包
+            const downloadUrl = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = zipFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
+            
+            this.showToast(`✅ 压缩包已生成：${zipFilename} (${filesToDownload.length} 个文件)`, 'success');
             
         } catch (error) {
-            console.error('批量下载失败:', error);
-            this.showToast(`❌ 批量下载失败：${error.message}`, 'error');
+            console.error('创建压缩包失败:', error);
+            this.showToast(`❌ 创建压缩包失败：${error.message}`, 'error');
         }
+    }
+
+    /**
+     * 生成README文件内容
+     */
+    static generateReadmeContent(files) {
+        const enumName = document.getElementById('enumName')?.value?.trim() || 'Generated';
+        const description = document.getElementById('description')?.value?.trim() || '';
+        const mainCmd = document.getElementById('mainCmd')?.value || '';
+        const subCmd = document.getElementById('subCmd')?.value || '';
+        
+        let readme = `# ${enumName} - 蓝牙指令代码包\n\n`;
+        readme += `## 基本信息\n`;
+        readme += `- **项目名称**: ${enumName}\n`;
+        if (description) readme += `- **描述**: ${description}\n`;
+        readme += `- **主命令**: ${mainCmd}\n`;
+        readme += `- **子命令**: ${subCmd}\n`;
+        readme += `- **生成时间**: ${new Date().toLocaleString('zh-CN')}\n\n`;
+        
+        readme += `## 文件结构\n\n`;
+        readme += `### 📁 kotlin/\nKotlin类文件，包含Req和Rsp数据类\n\n`;
+        readme += `### 📁 dart/\nDart类文件，用于Flutter项目\n\n`;
+        readme += `### 📁 service/\nService服务层代码，包含客户端和服务端调用方法\n\n`;
+        readme += `### 📁 test-data/\nJSON测试数据，可用于接口测试和调试\n\n`;
+        
+        readme += `## 文件列表\n\n`;
+        files.forEach((file, index) => {
+            readme += `${index + 1}. **${file.filename}**\n`;
+        });
+        
+        readme += `\n## 使用说明\n\n`;
+        readme += `1. **Kotlin文件**: 直接复制到Android项目的对应包路径\n`;
+        readme += `2. **Dart文件**: 复制到Flutter项目的model目录\n`;
+        readme += `3. **Service文件**: 根据项目架构放置到服务层\n`;
+        readme += `4. **JSON测试数据**: 用于Postman、单元测试等\n\n`;
+        readme += `---\n`;
+        readme += `*由蓝牙指令代码生成器自动生成*\n`;
+        
+        return readme;
     }
     
     /**
@@ -287,7 +393,9 @@ class FileDownloader {
             'Dart Req 类': 'dartReqClassCode',
             'Dart Rsp 类': 'dartRspClassCode',
             'Client Service': 'clientServiceCode',
-            'Server Service': 'serverServiceCode'
+            'Server Service': 'serverServiceCode',
+            '📋 Req 测试JSON': 'reqJsonTestData',
+            '📋 Rsp 测试JSON': 'rspJsonTestData'
         };
         return tabMap[tabText] || 'enumCode';
     }
@@ -299,7 +407,6 @@ class FileDownloader {
      * @returns {Object} 包含filename和mimeType的对象
      */
     static getFileInfo(tabText, content) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         const enumName = document.getElementById('enumName')?.value || 'Generated';
         const className = document.getElementById('className')?.value || 'GeneratedClass';
         
@@ -308,37 +415,45 @@ class FileDownloader {
         
         switch (tabText) {
             case '枚举项':
-                filename = `${enumName}_${timestamp}.kt`;
+                filename = `${enumName}.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Req 类':
-                filename = `${className}Req_${timestamp}.kt`;
+                filename = `${className}Req.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Rsp 类':
-                filename = `${className}Rsp_${timestamp}.kt`;
+                filename = `${className}Rsp.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Dart Req 类':
-                filename = `${className.toLowerCase()}_req_${timestamp}.dart`;
+                filename = `${className.toLowerCase()}_req.dart`;
                 mimeType = 'text/x-dart';
                 break;
             case 'Dart Rsp 类':
-                filename = `${className.toLowerCase()}_rsp_${timestamp}.dart`;
+                filename = `${className.toLowerCase()}_rsp.dart`;
                 mimeType = 'text/x-dart';
                 break;
             case 'Client Service':
                 const clientServiceName = document.getElementById('serviceName')?.value || 'GeneratedService';
-                filename = `${clientServiceName}Client_${timestamp}.kt`;
+                filename = `${clientServiceName}Client.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Server Service':
                 const serverServiceName = document.getElementById('serviceName')?.value || 'GeneratedService';
-                filename = `${serverServiceName}Server_${timestamp}.kt`;
+                filename = `${serverServiceName}Server.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
+            case '📋 Req 测试JSON':
+                filename = `${className}Req_TestData.json`;
+                mimeType = 'application/json';
+                break;
+            case '📋 Rsp 测试JSON':
+                filename = `${className}Rsp_TestData.json`;
+                mimeType = 'application/json';
+                break;
             default:
-                filename = `generated_code_${timestamp}.txt`;
+                filename = `generated_code.txt`;
         }
         
         return { filename, mimeType };

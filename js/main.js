@@ -201,7 +201,17 @@ ${rspCode}`;
             document.getElementById('dartRspClassCodeOutput').textContent = dartRspClassCode;
         }
         
-        // 确保Dart代码样式正确
+        // 生成Swift类代码
+        if (reqClassName) {
+            const swiftReqClassCode = generateSwiftClassCode(reqClassName, reqFields, true, baseName, enumType);
+            document.getElementById('swiftReqClassCodeOutput').textContent = swiftReqClassCode;
+        }
+        if (rspClassName) {
+            const swiftRspClassCode = generateSwiftClassCode(rspClassName, rspFields, false, baseName, enumType);
+            document.getElementById('swiftRspClassCodeOutput').textContent = swiftRspClassCode;
+        }
+        
+        // 确保Dart和Swift代码样式正确
         if (typeof ensureCodeOutputStyles === 'function') {
             ensureCodeOutputStyles();
         }

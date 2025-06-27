@@ -737,7 +737,7 @@ function generateDartToJsonCode(fields) {
     });
     
     return code;
-}
+} 
 
 // 测试Dart和Kotlin字节转换兼容性的函数
 function generateByteCompatibilityTestCode() {

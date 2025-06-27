@@ -138,7 +138,7 @@ function getFieldsFromList(type) {
 // function testDragFunction() { ... }
 
 // 拖拽功能初始化已屏蔽
-// document.addEventListener('DOMContentLoaded', function() { ... });
+// document.addEventListener('DOMContentLoaded', function() { ... }); 
 
 // 一键添加所有字段类型
 function addAllFieldTypes() {

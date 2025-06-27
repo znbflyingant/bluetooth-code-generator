@@ -479,7 +479,8 @@ function initializeTabs() {
             const tabContentIds = [
                 'enumCode', 'reqClassCode', 'rspClassCode', 
                 'dartReqClassCode', 'dartRspClassCode', 
-                'clientServiceCode', 'serverServiceCode'
+                'swiftReqClassCode', 'swiftRspClassCode',
+                'reqJsonTestData', 'rspJsonTestData'
             ];
             
             if (tabContentIds[index]) {
@@ -489,10 +490,60 @@ function initializeTabs() {
     });
 }
 
+// 添加标签页滚轮支持
+function addTabsScrollSupport() {
+    const tabsContainer = document.querySelector('.output-tabs');
+    if (tabsContainer) {
+        tabsContainer.addEventListener('wheel', function(e) {
+            // 阻止默认的垂直滚动
+            if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                e.preventDefault();
+                // 将垂直滚动转换为水平滚动
+                tabsContainer.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+
+        // 添加键盘导航支持
+        tabsContainer.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    tabsContainer.scrollLeft -= 100;
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    tabsContainer.scrollLeft += 100;
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    tabsContainer.scrollLeft = 0;
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    tabsContainer.scrollLeft = tabsContainer.scrollWidth;
+                    break;
+            }
+        });
+
+        // 使标签页容器可以获得焦点（用于键盘导航）
+        tabsContainer.setAttribute('tabindex', '0');
+        
+        // 添加视觉焦点指示器
+        tabsContainer.style.outline = 'none';
+        tabsContainer.addEventListener('focus', function() {
+            this.style.boxShadow = '0 0 0 2px rgba(102, 126, 234, 0.3)';
+        });
+        tabsContainer.addEventListener('blur', function() {
+            this.style.boxShadow = 'none';
+        });
+    }
+}
+
 // 页面加载完成后确保样式正确
 document.addEventListener('DOMContentLoaded', function() {
     ensureCodeOutputStyles();
     initializeTabs();
+    addTabsScrollSupport();
     
     // 监听代码更新，确保样式始终正确
     const observer = new MutationObserver(function(mutations) {
@@ -510,8 +561,12 @@ document.addEventListener('DOMContentLoaded', function() {
         'rspClassCodeOutput',
         'dartReqClassCodeOutput',
         'dartRspClassCodeOutput',
+        'swiftReqClassCodeOutput',
+        'swiftRspClassCodeOutput',
         'clientServiceCodeOutput',
-        'serverServiceCodeOutput'
+        'serverServiceCodeOutput',
+        'reqJsonTestDataOutput',
+        'rspJsonTestDataOutput'
     ];
     
     outputElements.forEach(id => {

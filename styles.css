@@ -302,6 +302,29 @@ pre.output {
         min-height: 200px;
         font-size: 12px;
     }
+    
+    /* 移动端标签页优化 */
+    .output-tabs {
+        gap: 5px;
+        padding: 0 10px 5px 10px;
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .tab {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: auto;
+        flex-shrink: 0;
+    }
+    
+    /* 移动端隐藏渐变遮罩，因为滚动条已经足够提示 */
+    .output-tabs::before,
+    .output-tabs::after {
+        display: none;
+    }
 }
 
 .field-list {
@@ -408,6 +431,60 @@ pre.output {
     border-bottom: 2px solid #e1e5e9;
     overflow-x: auto;
     flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #f1f1f1;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding-bottom: 5px;
+    position: relative;
+}
+
+/* 自定义滚动条样式 */
+.output-tabs::-webkit-scrollbar {
+    height: 8px;
+}
+
+.output-tabs::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.output-tabs::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.output-tabs::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* 标签页容器的边缘渐变提示 */
+.output-tabs::before,
+.output-tabs::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.output-tabs::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(248, 249, 250, 0.8), transparent);
+}
+
+.output-tabs::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(248, 249, 250, 0.8), transparent);
+}
+
+/* 容器需要相对定位才能使用绝对定位的伪元素 */
+.output-section {
+    position: relative;
 }
 
 .tab {
@@ -422,6 +499,8 @@ pre.output {
     transition: all 0.3s ease;
     border-radius: 4px 4px 0 0;
     margin-right: 2px;
+    flex-shrink: 0;
+    min-width: fit-content;
 }
 
 .tab:hover {

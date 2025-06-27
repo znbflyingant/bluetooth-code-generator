@@ -137,6 +137,10 @@ class FileDownloader {
                 } else if (filename.includes('Req.dart') || filename.includes('Rsp.dart')) {
                     // Dart类文件
                     dartFolder.file(filename, content);
+                } else if (filename.includes('Req.swift') || filename.includes('Rsp.swift')) {
+                    // Swift类文件
+                    const swiftFolder = zip.folder("swift");
+                    swiftFolder.file(filename, content);
                 } else if (filename.includes('Service')) {
                     // Service文件
                     serviceFolder.file(filename, content);
@@ -205,6 +209,7 @@ class FileDownloader {
         readme += `## 文件结构\n\n`;
         readme += `### 📁 kotlin/\nKotlin类文件，包含Req和Rsp数据类\n\n`;
         readme += `### 📁 dart/\nDart类文件，用于Flutter项目\n\n`;
+        readme += `### 📁 swift/\nSwift类文件，用于iOS项目\n\n`;
         readme += `### 📁 service/\nService服务层代码，包含客户端和服务端调用方法\n\n`;
         readme += `### 📁 test-data/\nJSON测试数据，可用于接口测试和调试\n\n`;
         
@@ -216,8 +221,9 @@ class FileDownloader {
         readme += `\n## 使用说明\n\n`;
         readme += `1. **Kotlin文件**: 直接复制到Android项目的对应包路径\n`;
         readme += `2. **Dart文件**: 复制到Flutter项目的model目录\n`;
-        readme += `3. **Service文件**: 根据项目架构放置到服务层\n`;
-        readme += `4. **JSON测试数据**: 用于Postman、单元测试等\n\n`;
+        readme += `3. **Swift文件**: 复制到iOS项目的model目录\n`;
+        readme += `4. **Service文件**: 根据项目架构放置到服务层\n`;
+        readme += `5. **JSON测试数据**: 用于Postman、单元测试等\n\n`;
         readme += `---\n`;
         readme += `*由蓝牙指令代码生成器自动生成*\n`;
         
@@ -392,6 +398,8 @@ class FileDownloader {
             'Rsp 类': 'rspClassCode',
             'Dart Req 类': 'dartReqClassCode',
             'Dart Rsp 类': 'dartRspClassCode',
+            'Swift Req 类': 'swiftReqClassCode',
+            'Swift Rsp 类': 'swiftRspClassCode',
             'Client Service': 'clientServiceCode',
             'Server Service': 'serverServiceCode',
             '📋 Req 测试JSON': 'reqJsonTestData',
@@ -433,6 +441,14 @@ class FileDownloader {
             case 'Dart Rsp 类':
                 filename = `${className.toLowerCase()}_rsp.dart`;
                 mimeType = 'text/x-dart';
+                break;
+            case 'Swift Req 类':
+                filename = `${className}Req.swift`;
+                mimeType = 'text/x-swift';
+                break;
+            case 'Swift Rsp 类':
+                filename = `${className}Rsp.swift`;
+                mimeType = 'text/x-swift';
                 break;
             case 'Client Service':
                 const clientServiceName = document.getElementById('serviceName')?.value || 'GeneratedService';

@@ -204,6 +204,8 @@
                     <button class="tab" onclick="switchTab('rspClassCode', this)">Rsp 类</button>
                     <button class="tab" onclick="switchTab('dartReqClassCode', this)">Dart Req 类</button>
                     <button class="tab" onclick="switchTab('dartRspClassCode', this)">Dart Rsp 类</button>
+                    <button class="tab" onclick="switchTab('swiftReqClassCode', this)">Swift Req 类</button>
+                    <button class="tab" onclick="switchTab('swiftRspClassCode', this)">Swift Rsp 类</button>
                     <button class="tab" onclick="switchTab('clientServiceCode', this)">Client Service</button>
                     <button class="tab" onclick="switchTab('serverServiceCode', this)">Server Service</button>
                     <button class="tab" onclick="switchTab('reqJsonTestData', this)">📋 Req 测试JSON</button>
@@ -228,6 +230,14 @@
 
                 <div id="dartRspClassCode" class="tab-content">
                     <pre class="output" id="dartRspClassCodeOutput">// Dart Rsp 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="swiftReqClassCode" class="tab-content">
+                    <pre class="output" id="swiftReqClassCodeOutput">// Swift Req 类代码将在这里显示...</pre>
+                </div>
+
+                <div id="swiftRspClassCode" class="tab-content">
+                    <pre class="output" id="swiftRspClassCodeOutput">// Swift Rsp 类代码将在这里显示...</pre>
                 </div>
 
                 <div id="clientServiceCode" class="tab-content">
@@ -290,6 +300,7 @@
     <script src="js/serialization.js"></script>
     <script src="js/code-generators.js"></script>
     <script src="js/dart-generators.js"></script>
+    <script src="js/swift-generators.js"></script>
     <script src="js/service-generators.js"></script>
     <script src="js/json-test-generator.js"></script>
     <script src="js/utils.js"></script>

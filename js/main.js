@@ -217,28 +217,7 @@ ${rspCode}`;
         }
     }
 
-    // 生成Service代码
-    if (document.getElementById('generateService').checked) {
-        const generateClientService = document.getElementById('generateClientService').checked;
-        const generateServerService = document.getElementById('generateServerService').checked;
-        
-        if (generateClientService) {
-            const clientServiceCode = generateClientServiceCode(true, reqClassName, rspClassName, baseName);
-            document.getElementById('clientServiceCodeOutput').textContent = clientServiceCode;
-        } else {
-            document.getElementById('clientServiceCodeOutput').textContent = '// 未选择生成 Client Service';
-        }
-        
-        if (generateServerService) {
-            const serverServiceCode = generateServerServiceCode(true, reqClassName, rspClassName, baseName);
-            document.getElementById('serverServiceCodeOutput').textContent = serverServiceCode;
-        } else {
-            document.getElementById('serverServiceCodeOutput').textContent = '// 未选择生成 Server Service';
-        }
-    } else {
-        document.getElementById('clientServiceCodeOutput').textContent = '// 未选择生成 Service';
-        document.getElementById('serverServiceCodeOutput').textContent = '// 未选择生成 Service';
-    }
+
     
     // 生成JSON测试数据
     if (typeof generateJsonTestDataForBoth === 'function') {
@@ -253,38 +232,9 @@ ${rspCode}`;
 
 
 
-// 切换Service配置的显示/隐藏
-function toggleServiceConfig() {
-    const content = document.getElementById('serviceConfigContent');
-    const icon = document.getElementById('serviceToggleIcon');
-    
-    if (content.style.display === 'none') {
-        content.style.display = 'block';
-        icon.textContent = '▼ 点击收起';
-    } else {
-        content.style.display = 'none';
-        icon.textContent = '▶ 点击展开';
-    }
-}
 
-// 根据Service生成复选框状态控制Service配置区域的显示
-function toggleServiceConfigVisibility() {
-    const generateServiceCheckbox = document.getElementById('generateService');
-    const serviceConfig = document.getElementById('serviceConfig');
-    
-    if (generateServiceCheckbox.checked) {
-        serviceConfig.style.display = 'block';
-    } else {
-        serviceConfig.style.display = 'none';
-        // 同时收起配置内容
-        const content = document.getElementById('serviceConfigContent');
-        const icon = document.getElementById('serviceToggleIcon');
-        content.style.display = 'none';
-        icon.textContent = '▶ 点击展开';
-    }
-}
 
-// 页面加载时初始化Service配置状态
+// 页面加载时初始化配置
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化 MainCmd 下拉选项，不传入默认值，自动选中第一个选项
     if (typeof populateMainCmdSelect === 'function') {
@@ -295,14 +245,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof populateSubCmdSelect === 'function') {
         populateSubCmdSelect('subCmd', 0); // 默认选中 0
     }
-    
-    // 默认收起Service配置
-    const generateServiceCheckbox = document.getElementById('generateService');
-    if (generateServiceCheckbox && generateServiceCheckbox.checked) {
-        document.getElementById('serviceConfig').style.display = 'block';
-         } else {
-         document.getElementById('serviceConfig').style.display = 'none';
-     }
 });
 
 // 显示使用说明弹窗
@@ -349,7 +291,7 @@ function showUsageGuide() {
 • Req类：继承 CommonProtoBase，包含完整序列化
 • Rsp类：继承 CommonProtoRsp，包含完整序列化
 • Dart类：Flutter版本，支持iOS和Android
-• Service类：客户端和服务端调用层方法
+
 • 包名：com.tempolor.aimusic.proto.aires
 • 自动导入所需的Helper类和依赖
 
@@ -357,7 +299,7 @@ function showUsageGuide() {
 • 自动生成二进制和JSON序列化方法
 • 支持跨平台Kotlin和Dart代码
 • 智能类型转换和异常处理
-• 完整的Service调用层代码生成
+
     `;
     
     alert(usageContent);

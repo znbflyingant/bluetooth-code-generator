@@ -221,35 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 监听Service生成选项变化
-    const generateServiceCheckbox = document.getElementById('generateService');
-    const serviceConfigDiv = document.getElementById('serviceConfig');
-    
-    if (generateServiceCheckbox && serviceConfigDiv) {
-        generateServiceCheckbox.addEventListener('change', function() {
-            serviceConfigDiv.style.display = this.checked ? 'block' : 'none';
-        });
-    }
-    
-    // 监听MainCmd变化，自动生成Service名称
-    const mainCmdSelect = document.getElementById('mainCmd');
-    const serviceNameInput = document.getElementById('serviceName');
-    
-    if (mainCmdSelect && serviceNameInput) {
-        mainCmdSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const optionText = selectedOption.textContent || selectedOption.innerText;
-            const match = optionText.match(/\(([^)]+)\)/);
-            if (match && match[1]) {
-                const enumType = match[1];
-                // 从枚举类型生成Service名称
-                if (enumType.endsWith('Enum')) {
-                    const serviceName = enumType.replace(/Enum$/, 'Service');
-                    serviceNameInput.value = serviceName;
-                }
-            }
-        });
-    }
+
 });
 
 // 生成 fromJsonByteArray 方法的具体实现
@@ -421,8 +393,7 @@ function ensureCodeOutputStyles() {
         'rspClassCodeOutput',
         'dartReqClassCodeOutput',
         'dartRspClassCodeOutput',
-        'clientServiceCodeOutput',
-        'serverServiceCodeOutput',
+
         'reqJsonTestDataOutput',
         'rspJsonTestDataOutput'
     ];
@@ -563,8 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'dartRspClassCodeOutput',
         'swiftReqClassCodeOutput',
         'swiftRspClassCodeOutput',
-        'clientServiceCodeOutput',
-        'serverServiceCodeOutput',
+
         'reqJsonTestDataOutput',
         'rspJsonTestDataOutput'
     ];

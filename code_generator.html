@@ -75,75 +75,7 @@
                         <small style="color: #666; margin-top: 5px; display: block;">选中此选项将同时生成对应的类文件</small>
                     </div>
 
-                    <div class="form-group" style="display: none;">
-                        <label style="display: flex; align-items: center; cursor: pointer;">
-                            <input type="checkbox" id="generateService" name="generateService" style="width: auto; margin-right: 10px;" onchange="toggleServiceConfigVisibility()" checked>
-                            <span>🔧 自动生成 Service 调用层代码</span>
-                        </label>
-                        <small style="color: #666; margin-top: 5px; display: block;">基于模板生成调用层service方法</small>
-                    </div>
 
-                    <div id="serviceConfig" class="form-group">
-                        <label style="display: none; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleServiceConfig()" ">
-                            <span>🔧 Service 配置</span>
-                            <span id="serviceToggleIcon" style="font-size: 12px; color: #666;">▶ 点击展开</span>
-                        </label>
-                        <div id="serviceConfigContent" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-                        
-                        <div style="margin-top: 10px;">
-                            <label for="serviceName">Service 类名 (自动生成)</label>
-                            <input type="text" id="serviceName" class="form-control" value="AiResService" placeholder="例如: AiResService">
-                            <small style="color: #666; margin-top: 5px; display: block;">🤖 根据MainCmd括号内容自动生成，可手动修改</small>
-                        </div>
-
-                        <div style="margin-top: 15px;">
-                            <label for="servicePackage">Service 包名</label>
-                            <input type="text" id="servicePackage" class="form-control" value="com.tempolor.aimusic.proto" placeholder="例如: com.tempolor.aimusic.proto">
-                        </div>
-
-                        <div style="margin-top: 15px;">
-                            <label>Service 类型</label>
-                            <div style="display: flex; gap: 15px; margin-top: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="generateClientService" checked>
-                                    <label for="generateClientService">生成 Client Service</label>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="generateServerService" checked>
-                                    <label for="generateServerService">生成 Server Service</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 15px;">
-                            <label>Client 方法类型</label>
-                            <div style="display: flex; gap: 15px; margin-top: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="includeInChunk" checked>
-                                    <label for="includeInChunk">包含 InChunk 方法</label>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="includeWithResponse" checked>
-                                    <label for="includeWithResponse">包含 WithResponse 方法</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 15px;">
-                            <label>Server 方法类型</label>
-                            <div style="display: flex; gap: 15px; margin-top: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="includeServerSupReq" checked>
-                                    <label for="includeServerSupReq">包含 SupReqInQueueEx 方法</label>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="includeServerSendData" checked>
-                                    <label for="includeServerSendData">包含 SendData 方法</label>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
 
                     <div id="classConfig" class="form-group">
                         <label>类模板选择：</label>
@@ -206,8 +138,7 @@
                     <button class="tab" onclick="switchTab('dartRspClassCode', this)">Dart Rsp 类</button>
                     <button class="tab" onclick="switchTab('swiftReqClassCode', this)">Swift Req 类</button>
                     <button class="tab" onclick="switchTab('swiftRspClassCode', this)">Swift Rsp 类</button>
-                    <button class="tab" onclick="switchTab('clientServiceCode', this)">Client Service</button>
-                    <button class="tab" onclick="switchTab('serverServiceCode', this)">Server Service</button>
+
                     <button class="tab" onclick="switchTab('reqJsonTestData', this)">📋 Req 测试JSON</button>
                     <button class="tab" onclick="switchTab('rspJsonTestData', this)">📋 Rsp 测试JSON</button>
                 </div>
@@ -240,13 +171,7 @@
                     <pre class="output" id="swiftRspClassCodeOutput">// Swift Rsp 类代码将在这里显示...</pre>
                 </div>
 
-                <div id="clientServiceCode" class="tab-content">
-                    <pre class="output" id="clientServiceCodeOutput">// Client Service 代码将在这里显示...</pre>
-                </div>
 
-                <div id="serverServiceCode" class="tab-content">
-                    <pre class="output" id="serverServiceCodeOutput">// Server Service 代码将在这里显示...</pre>
-                </div>
 
                 <div id="reqJsonTestData" class="tab-content">
                     <pre class="output" id="reqJsonTestDataOutput">// Req JSON测试数据将在这里显示...</pre>

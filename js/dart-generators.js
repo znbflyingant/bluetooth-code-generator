@@ -78,126 +78,6 @@ function generateDartClassCode(className, fields = [], isReq = true, enumBaseNam
     let code = `import 'dart:typed_data';
 import 'dart:convert';
 
-/// 兼容Java CmdHelper的字节转换工具类
-class ByteConverter {
-  /// 字节转换为32位整数 (对应 CmdHelper.byteToInt)
-  /// 使用大端序，与Java保持一致
-  static int byteToInt(Uint8List bytes) {
-    if (bytes.length < 4) {
-      throw ArgumentError('bytes length must be >= 4');
-    }
-    return ByteData.sublistView(bytes, 0, 4).getInt32(0, Endian.big);
-  }
-
-  /// 32位整数转换为字节 (对应 CmdHelper.intToByte)
-  static Uint8List intToByte(int value) {
-    final data = ByteData(4);
-    data.setInt32(0, value, Endian.big);
-    return data.buffer.asUint8List();
-  }
-
-  /// 字节转换为16位整数 (对应 CmdHelper.byte2ToInt)
-  static int byte2ToInt(Uint8List bytes) {
-    if (bytes.length < 2) {
-      throw ArgumentError('bytes length must be >= 2');
-    }
-    return ByteData.sublistView(bytes, 0, 2).getInt16(0, Endian.big);
-  }
-
-  /// 16位整数转换为字节 (对应 CmdHelper.intToByte2)
-  static Uint8List intToByte2(int value) {
-    final data = ByteData(2);
-    data.setInt16(0, value, Endian.big);
-    return data.buffer.asUint8List();
-  }
-
-  /// 字节转换为24位整数 (对应 CmdHelper.byte3ToInt)
-  static int byte3ToInt(Uint8List bytes) {
-    if (bytes.length < 3) {
-      throw ArgumentError('bytes length must be >= 3');
-    }
-    // 3字节大端序转换
-    return (bytes[0] << 16) | (bytes[1] << 8) | bytes[2];
-  }
-
-  /// 24位整数转换为字节 (对应 CmdHelper.intToByte3)
-  static Uint8List intToByte3(int value) {
-    return Uint8List.fromList([
-      (value >> 16) & 0xFF,
-      (value >> 8) & 0xFF,
-      value & 0xFF,
-    ]);
-  }
-
-  /// 字节转换为8位整数 (对应 CmdHelper.byte1ToInt)
-  static int byte1ToInt(Uint8List bytes) {
-    if (bytes.length < 1) {
-      throw ArgumentError('bytes length must be >= 1');
-    }
-    return bytes[0] & 0xFF;
-  }
-
-  /// 8位整数转换为字节 (对应 CmdHelper.intToByte1)
-  static Uint8List intToByte1(int value) {
-    return Uint8List.fromList([value & 0xFF]);
-  }
-
-  /// 字节转换为64位长整数 (对应 CmdHelper.byteToLong)
-  static int byteToLong(Uint8List bytes) {
-    if (bytes.length < 8) {
-      throw ArgumentError('bytes length must be >= 8');
-    }
-    return ByteData.sublistView(bytes, 0, 8).getInt64(0, Endian.big);
-  }
-
-  /// 64位长整数转换为字节 (对应 CmdHelper.longToByte)
-  static Uint8List longToByte(int value) {
-    final data = ByteData(8);
-    data.setInt64(0, value, Endian.big);
-    return data.buffer.asUint8List();
-  }
-
-  /// 字节转换为16位短整数 (对应 CmdHelper.byteToShort)
-  static int byteToShort(Uint8List bytes) {
-    return byte2ToInt(bytes);
-  }
-
-  /// 16位短整数转换为字节 (对应 CmdHelper.shortToByte)
-  static Uint8List shortToByte(int value) {
-    return intToByte2(value);
-  }
-
-  /// 字节转换为32位浮点数 (对应 CmdHelper.byteToFloat)
-  static double byteToFloat(Uint8List bytes) {
-    if (bytes.length < 4) {
-      throw ArgumentError('bytes length must be >= 4');
-    }
-    return ByteData.sublistView(bytes, 0, 4).getFloat32(0, Endian.big);
-  }
-
-  /// 32位浮点数转换为字节 (对应 CmdHelper.floatToByte)
-  static Uint8List floatToByte(double value) {
-    final data = ByteData(4);
-    data.setFloat32(0, value, Endian.big);
-    return data.buffer.asUint8List();
-  }
-
-  /// 字节转换为64位双精度浮点数 (对应 CmdHelper.byteToDouble)
-  static double byteToDouble(Uint8List bytes) {
-    if (bytes.length < 8) {
-      throw ArgumentError('bytes length must be >= 8');
-    }
-    return ByteData.sublistView(bytes, 0, 8).getFloat64(0, Endian.big);
-  }
-
-  /// 64位双精度浮点数转换为字节 (对应 CmdHelper.doubleToByte)
-  static Uint8List doubleToByte(double value) {
-    final data = ByteData(8);
-    data.setFloat64(0, value, Endian.big);
-    return data.buffer.asUint8List();
-  }
-}
-
 class ${className} {
 `;
 
@@ -308,13 +188,13 @@ function generateDartFromByteArrayCode(fields) {
             case 'String':
                 const stringLengthBytes = field.stringLengthBytes || 1;
                 if (stringLengthBytes === 1) {
-                    code += `        int ${fieldName}Size = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                    code += `        int ${fieldName}Size = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 } else if (stringLengthBytes === 2) {
-                    code += `        int ${fieldName}Size = ByteConverter.byte2ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
+                    code += `        int ${fieldName}Size = ByteHelper.byte2ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
                 } else if (stringLengthBytes === 3) {
-                    code += `        int ${fieldName}Size = ByteConverter.byte3ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 3` : position + 3}));\n`;
+                    code += `        int ${fieldName}Size = ByteHelper.byte3ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 3` : position + 3}));\n`;
                 } else if (stringLengthBytes === 4) {
-                    code += `        int ${fieldName}Size = ByteConverter.byteToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
+                    code += `        int ${fieldName}Size = ByteHelper.byteToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
                 }
                 code += `        if (${fieldName}Size > 0) {\n`;
                 code += `          Uint8List ${fieldName}Bytes = byteArray.sublist(${typeof position === 'string' ? `${position} + ${stringLengthBytes}` : `${position + stringLengthBytes}`}, ${typeof position === 'string' ? `${position} + ${stringLengthBytes}` : `${position + stringLengthBytes}`} + ${fieldName}Size);\n`;
@@ -324,32 +204,32 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'Int':
-                code += `        ${fieldName} = ByteConverter.byteToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
+                code += `        ${fieldName} = ByteHelper.byteToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
                 position = typeof position === 'string' ? `${position} + 4` : position + 4;
                 break;
                 
             case 'Int3':
-                code += `        ${fieldName} = ByteConverter.byte3ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 3` : position + 3}));\n`;
+                code += `        ${fieldName} = ByteHelper.byte3ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 3` : position + 3}));\n`;
                 position = typeof position === 'string' ? `${position} + 3` : position + 3;
                 break;
                 
             case 'Int2':
-                code += `        ${fieldName} = ByteConverter.byte2ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
+                code += `        ${fieldName} = ByteHelper.byte2ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
                 position = typeof position === 'string' ? `${position} + 2` : position + 2;
                 break;
                 
             case 'Int1':
-                code += `        ${fieldName} = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        ${fieldName} = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 position = typeof position === 'string' ? `${position} + 1` : position + 1;
                 break;
                 
             case 'Long':
-                code += `        ${fieldName} = ByteConverter.byteToLong(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 8` : position + 8}));\n`;
+                code += `        ${fieldName} = ByteHelper.byteToLong(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 8` : position + 8}));\n`;
                 position = typeof position === 'string' ? `${position} + 8` : position + 8;
                 break;
                 
             case 'Short':
-                code += `        ${fieldName} = ByteConverter.byteToShort(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
+                code += `        ${fieldName} = ByteHelper.byteToShort(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 2` : position + 2}));\n`;
                 position = typeof position === 'string' ? `${position} + 2` : position + 2;
                 break;
                 
@@ -364,17 +244,17 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'Float':
-                code += `        ${fieldName} = ByteConverter.byteToFloat(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
+                code += `        ${fieldName} = ByteHelper.byteToFloat(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 4` : position + 4}));\n`;
                 position = typeof position === 'string' ? `${position} + 4` : position + 4;
                 break;
                 
             case 'Double':
-                code += `        ${fieldName} = ByteConverter.byteToDouble(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 8` : position + 8}));\n`;
+                code += `        ${fieldName} = ByteHelper.byteToDouble(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 8` : position + 8}));\n`;
                 position = typeof position === 'string' ? `${position} + 8` : position + 8;
                 break;
                 
             case 'ByteArray':
-                code += `        int ${fieldName}Size = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Size = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        if (${fieldName}Size > 0) {\n`;
                 code += `          ${fieldName} = byteArray.sublist(${typeof position === 'string' ? `${position} + 1` : position + 1}, ${typeof position === 'string' ? `${position} + 1` : position + 1} + ${fieldName}Size);\n`;
                 code += `        }\n`;
@@ -383,18 +263,18 @@ function generateDartFromByteArrayCode(fields) {
 
             case 'MutableList<String>':
                 const stringListLengthBytes = field.stringLengthBytes || 1;
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <String>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
                 if (stringListLengthBytes === 1) {
-                    code += `          int strLen = ByteConverter.byte1ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 1));\n`;
+                    code += `          int strLen = ByteHelper.byte1ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 1));\n`;
                 } else if (stringListLengthBytes === 2) {
-                    code += `          int strLen = ByteConverter.byte2ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 2));\n`;
+                    code += `          int strLen = ByteHelper.byte2ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 2));\n`;
                 } else if (stringListLengthBytes === 3) {
-                    code += `          int strLen = ByteConverter.byte3ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 3));\n`;
+                    code += `          int strLen = ByteHelper.byte3ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 3));\n`;
                 } else if (stringListLengthBytes === 4) {
-                    code += `          int strLen = ByteConverter.byteToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 4));\n`;
+                    code += `          int strLen = ByteHelper.byteToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 4));\n`;
                 }
                 code += `          ${fieldName}Position += ${stringListLengthBytes};\n`;
                 code += `          if (strLen > 0) {\n`;
@@ -407,11 +287,11 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int>':
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <int>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
-                code += `          int value = ByteConverter.byteToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 4));\n`;
+                code += `          int value = ByteHelper.byteToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 4));\n`;
                 code += `          ${fieldName}!.add(value);\n`;
                 code += `          ${fieldName}Position += 4;\n`;
                 code += `        }\n`;
@@ -419,11 +299,11 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int3>':
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <int>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
-                code += `          int value = ByteConverter.byte3ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 3));\n`;
+                code += `          int value = ByteHelper.byte3ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 3));\n`;
                 code += `          ${fieldName}!.add(value);\n`;
                 code += `          ${fieldName}Position += 3;\n`;
                 code += `        }\n`;
@@ -431,11 +311,11 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int2>':
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <int>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
-                code += `          int value = ByteConverter.byte2ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 2));\n`;
+                code += `          int value = ByteHelper.byte2ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 2));\n`;
                 code += `          ${fieldName}!.add(value);\n`;
                 code += `          ${fieldName}Position += 2;\n`;
                 code += `        }\n`;
@@ -443,11 +323,11 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Int1>':
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <int>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
-                code += `          int value = ByteConverter.byte1ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 1));\n`;
+                code += `          int value = ByteHelper.byte1ToInt(byteArray.sublist(${fieldName}Position, ${fieldName}Position + 1));\n`;
                 code += `          ${fieldName}!.add(value);\n`;
                 code += `          ${fieldName}Position += 1;\n`;
                 code += `        }\n`;
@@ -455,7 +335,7 @@ function generateDartFromByteArrayCode(fields) {
                 break;
                 
             case 'MutableList<Byte>':
-                code += `        int ${fieldName}Count = ByteConverter.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
+                code += `        int ${fieldName}Count = ByteHelper.byte1ToInt(byteArray.sublist(${position}, ${typeof position === 'string' ? `${position} + 1` : position + 1}));\n`;
                 code += `        ${fieldName} = <int>[];\n`;
                 code += `        int ${fieldName}Position = ${typeof position === 'string' ? `${position} + 1` : position + 1};\n`;
                 code += `        for (int i = 0; i < ${fieldName}Count; i++) {\n`;
@@ -492,44 +372,44 @@ function generateDartToByteArrayCode(fields) {
                 code += `      if (${fieldName} != null) {\n`;
                 code += `        Uint8List ${fieldName}Bytes = utf8.encode(${fieldName}!);\n`;
                 if (stringLengthBytes === 1) {
-                    code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}Bytes.length));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}Bytes.length));\n`;
                 } else if (stringLengthBytes === 2) {
-                    code += `        bytes.addAll(ByteConverter.intToByte2(${fieldName}Bytes.length));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte2(${fieldName}Bytes.length));\n`;
                 } else if (stringLengthBytes === 3) {
-                    code += `        bytes.addAll(ByteConverter.intToByte3(${fieldName}Bytes.length));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte3(${fieldName}Bytes.length));\n`;
                 } else if (stringLengthBytes === 4) {
-                    code += `        bytes.addAll(ByteConverter.intToByte(${fieldName}Bytes.length));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte(${fieldName}Bytes.length));\n`;
                 }
                 code += `        bytes.addAll(${fieldName}Bytes);\n`;
                 code += `      } else {\n`;
                 if (stringLengthBytes === 1) {
-                    code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 } else if (stringLengthBytes === 2) {
-                    code += `        bytes.addAll(ByteConverter.intToByte2(0));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte2(0));\n`;
                 } else if (stringLengthBytes === 3) {
-                    code += `        bytes.addAll(ByteConverter.intToByte3(0));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte3(0));\n`;
                 } else if (stringLengthBytes === 4) {
-                    code += `        bytes.addAll(ByteConverter.intToByte(0));\n`;
+                    code += `        bytes.addAll(ByteHelper.intToByte(0));\n`;
                 }
                 code += `      }\n\n`;
                 break;
             case 'Int':
-                code += `      bytes.addAll(ByteConverter.intToByte(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.intToByte(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Int3':
-                code += `      bytes.addAll(ByteConverter.intToByte3(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.intToByte3(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Int2':
-                code += `      bytes.addAll(ByteConverter.intToByte2(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.intToByte2(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Int1':
-                code += `      bytes.addAll(ByteConverter.intToByte1(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.intToByte1(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Long':
-                code += `      bytes.addAll(ByteConverter.longToByte(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.longToByte(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Short':
-                code += `      bytes.addAll(ByteConverter.shortToByte(${fieldName} ?? 0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.shortToByte(${fieldName} ?? 0));\n\n`;
                 break;
             case 'Byte':
                 code += `      bytes.add(${fieldName} ?? 0);\n\n`;
@@ -538,88 +418,88 @@ function generateDartToByteArrayCode(fields) {
                 code += `      bytes.add((${fieldName} ?? false) ? 1 : 0);\n\n`;
                 break;
             case 'Float':
-                code += `      bytes.addAll(ByteConverter.floatToByte(${fieldName} ?? 0.0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.floatToByte(${fieldName} ?? 0.0));\n\n`;
                 break;
             case 'Double':
-                code += `      bytes.addAll(ByteConverter.doubleToByte(${fieldName} ?? 0.0));\n\n`;
+                code += `      bytes.addAll(ByteHelper.doubleToByte(${fieldName} ?? 0.0));\n\n`;
                 break;
             case 'ByteArray':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        bytes.addAll(${fieldName}!);\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<String>':
                 const toStringLengthBytes = field.stringLengthBytes || 1;
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (String str in ${fieldName}!) {\n`;
                 code += `          Uint8List strBytes = utf8.encode(str);\n`;
                 if (toStringLengthBytes === 1) {
-                    code += `          bytes.addAll(ByteConverter.intToByte1(strBytes.length));\n`;
+                    code += `          bytes.addAll(ByteHelper.intToByte1(strBytes.length));\n`;
                 } else if (toStringLengthBytes === 2) {
-                    code += `          bytes.addAll(ByteConverter.intToByte2(strBytes.length));\n`;
+                    code += `          bytes.addAll(ByteHelper.intToByte2(strBytes.length));\n`;
                 } else if (toStringLengthBytes === 3) {
-                    code += `          bytes.addAll(ByteConverter.intToByte3(strBytes.length));\n`;
+                    code += `          bytes.addAll(ByteHelper.intToByte3(strBytes.length));\n`;
                 } else if (toStringLengthBytes === 4) {
-                    code += `          bytes.addAll(ByteConverter.intToByte(strBytes.length));\n`;
+                    code += `          bytes.addAll(ByteHelper.intToByte(strBytes.length));\n`;
                 }
                 code += `          bytes.addAll(strBytes);\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<Int>':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (int value in ${fieldName}!) {\n`;
-                code += `          bytes.addAll(ByteConverter.intToByte(value));\n`;
+                code += `          bytes.addAll(ByteHelper.intToByte(value));\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<Int3>':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (int value in ${fieldName}!) {\n`;
-                code += `          bytes.addAll(ByteConverter.intToByte3(value));\n`;
+                code += `          bytes.addAll(ByteHelper.intToByte3(value));\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<Int2>':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (int value in ${fieldName}!) {\n`;
-                code += `          bytes.addAll(ByteConverter.intToByte2(value));\n`;
+                code += `          bytes.addAll(ByteHelper.intToByte2(value));\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<Int1>':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (int value in ${fieldName}!) {\n`;
-                code += `          bytes.addAll(ByteConverter.intToByte1(value));\n`;
+                code += `          bytes.addAll(ByteHelper.intToByte1(value));\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             case 'MutableList<Byte>':
                 code += `      if (${fieldName} != null) {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(${fieldName}!.length));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(${fieldName}!.length));\n`;
                 code += `        for (int value in ${fieldName}!) {\n`;
                 code += `          bytes.add(value);\n`;
                 code += `        }\n`;
                 code += `      } else {\n`;
-                code += `        bytes.addAll(ByteConverter.intToByte1(0));\n`;
+                code += `        bytes.addAll(ByteHelper.intToByte1(0));\n`;
                 code += `      }\n\n`;
                 break;
             default:
@@ -744,8 +624,8 @@ function generateByteCompatibilityTestCode() {
     return `void testByteCompatibility() {
   print('=== 测试Dart与Kotlin字节转换兼容性 ===');
   int testInt = 0x12345678;
-  var intBytes = ByteConverter.intToByte(testInt);
-  var decodedInt = ByteConverter.byteToInt(intBytes);
+  var intBytes = ByteHelper.intToByte(testInt);
+  var decodedInt = ByteHelper.byteToInt(intBytes);
   print('Int兼容性: \${testInt == decodedInt}');
   print('=== 测试完成 ===');
 }`;

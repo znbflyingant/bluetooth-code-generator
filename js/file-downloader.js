@@ -120,31 +120,40 @@ class FileDownloader {
             // 创建文件夹结构
             const kotlinFolder = zip.folder("kotlin");
             const dartFolder = zip.folder("dart");
-            const serviceFolder = zip.folder("service");
             const testDataFolder = zip.folder("test-data");
+            
+            // 标记是否已添加Swift ByteConverter
+            let swiftByteConverterAdded = false;
             
             // 根据文件类型添加到对应文件夹
             filesToDownload.forEach(file => {
                 const filename = file.filename;
                 const content = file.content;
                 
-                if (filename.includes('Enum') || filename.includes('enum')) {
-                    // 枚举文件放在根目录
-                    zip.file(filename, content);
-                } else if (filename.includes('Req.kt') || filename.includes('Rsp.kt')) {
-                    // Kotlin类文件
-                    kotlinFolder.file(filename, content);
-                } else if (filename.includes('Req.dart') || filename.includes('Rsp.dart')) {
+                // 更精确的文件分类逻辑
+                if (filename.endsWith('.kt')) {
+                    if (filename.includes('Enum') || content.includes('enum class') || content.includes('enum ')) {
+                        // 枚举文件放在根目录
+                        zip.file(filename, content);
+                    } else {
+                        // Kotlin类文件
+                        kotlinFolder.file(filename, content);
+                    }
+                } else if (filename.endsWith('.dart')) {
                     // Dart类文件
                     dartFolder.file(filename, content);
-                } else if (filename.includes('Req.swift') || filename.includes('Rsp.swift')) {
+                } else if (filename.endsWith('.swift')) {
                     // Swift类文件
                     const swiftFolder = zip.folder("swift");
                     swiftFolder.file(filename, content);
-                } else if (filename.includes('Service')) {
-                    // Service文件
-                    serviceFolder.file(filename, content);
-                } else if (filename.includes('JSON') || filename.includes('json') || filename.includes('测试')) {
+                    
+                    // 自动添加ByteConverter.swift工具类文件（只添加一次）
+                    if (!swiftByteConverterAdded && typeof generateSwiftByteConverterFile === 'function') {
+                        const byteConverterContent = generateSwiftByteConverterFile();
+                        swiftFolder.file("ByteConverter.swift", byteConverterContent);
+                        swiftByteConverterAdded = true;
+                    }
+                } else if (filename.endsWith('.json')) {
                     // JSON测试数据
                     testDataFolder.file(filename, content);
                 } else {
@@ -168,8 +177,12 @@ class FileDownloader {
             
             // 生成下载文件名
             const enumName = document.getElementById('enumName')?.value?.trim() || 'Generated';
+            const className = document.getElementById('className')?.value?.trim() || 'GeneratedClass';
             const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-            const zipFilename = `${enumName}_${timestamp}.zip`;
+            
+            // 优先使用enumName，如果没有则使用className，最后使用默认值
+            const projectName = enumName || className || 'BluetoothCommand';
+            const zipFilename = `${projectName}_${timestamp}.zip`;
             
             // 下载压缩包
             const downloadUrl = URL.createObjectURL(zipBlob);
@@ -207,11 +220,11 @@ class FileDownloader {
         readme += `- **生成时间**: ${new Date().toLocaleString('zh-CN')}\n\n`;
         
         readme += `## 文件结构\n\n`;
-        readme += `### 📁 kotlin/\nKotlin类文件，包含Req和Rsp数据类\n\n`;
-        readme += `### 📁 dart/\nDart类文件，用于Flutter项目\n\n`;
-        readme += `### 📁 swift/\nSwift类文件，用于iOS项目\n\n`;
-        readme += `### 📁 service/\nService服务层代码，包含客户端和服务端调用方法\n\n`;
+        readme += `### 📁 kotlin/\nKotlin类文件，包含Req和Rsp数据类，用于Android项目\n\n`;
+        readme += `### 📁 dart/\nDart类文件，包含Req和Rsp数据类，用于Flutter项目\n\n`;
+        readme += `### 📁 swift/\nSwift类文件，包含Req和Rsp数据类以及ByteConverter工具类，用于iOS项目\n\n`;
         readme += `### 📁 test-data/\nJSON测试数据，可用于接口测试和调试\n\n`;
+        readme += `### 📄 枚举文件\n枚举定义文件，定义了命令类型和相关常量\n\n`;
         
         readme += `## 文件列表\n\n`;
         files.forEach((file, index) => {
@@ -221,9 +234,15 @@ class FileDownloader {
         readme += `\n## 使用说明\n\n`;
         readme += `1. **Kotlin文件**: 直接复制到Android项目的对应包路径\n`;
         readme += `2. **Dart文件**: 复制到Flutter项目的model目录\n`;
-        readme += `3. **Swift文件**: 复制到iOS项目的model目录\n`;
-        readme += `4. **Service文件**: 根据项目架构放置到服务层\n`;
-        readme += `5. **JSON测试数据**: 用于Postman、单元测试等\n\n`;
+        readme += `3. **Swift文件**: 复制到iOS项目的model目录，ByteConverter.swift为必需的工具类\n`;
+        readme += `4. **枚举文件**: 根据项目需要放置到相应的包/模块中\n`;
+        readme += `5. **JSON测试数据**: 用于Postman、单元测试等工具进行接口测试\n\n`;
+        
+        readme += `## 注意事项\n\n`;
+        readme += `- Swift项目需要同时引入ByteConverter.swift工具类\n`;
+        readme += `- 所有代码都使用小端序字节转换，与Java/Kotlin CmdHelper兼容\n`;
+        readme += `- JSON测试数据包含了随机生成的样本数据，实际使用时请根据需要修改\n\n`;
+        
         readme += `---\n`;
         readme += `*由蓝牙指令代码生成器自动生成*\n`;
         
@@ -400,8 +419,7 @@ class FileDownloader {
             'Dart Rsp 类': 'dartRspClassCode',
             'Swift Req 类': 'swiftReqClassCode',
             'Swift Rsp 类': 'swiftRspClassCode',
-            'Client Service': 'clientServiceCode',
-            'Server Service': 'serverServiceCode',
+
             '📋 Req 测试JSON': 'reqJsonTestData',
             '📋 Rsp 测试JSON': 'rspJsonTestData'
         };
@@ -421,44 +439,88 @@ class FileDownloader {
         let filename = '';
         let mimeType = 'text/plain';
         
+        // 添加驼峰转下划线的辅助函数
+        const camelToSnake = (str) => {
+            return str
+                .replace(/([A-Z])/g, '_$1')  // 在大写字母前添加下划线
+                .toLowerCase()               // 转换为小写
+                .replace(/^_/, '');          // 移除开头的下划线（如果有）
+        };
+        
+        // 尝试从内容中提取真实的类名
+        const extractClassNameFromContent = (content, type) => {
+            if (!content) return className + type;
+            
+            // 匹配 class ClassName 或 object ClassName 模式
+            const kotlinClassMatch = content.match(/(?:class|object)\s+(\w+)/);
+            if (kotlinClassMatch) {
+                return kotlinClassMatch[1];
+            }
+            
+            // 匹配 Dart 类: class ClassName
+            const dartClassMatch = content.match(/class\s+(\w+)/);
+            if (dartClassMatch) {
+                return dartClassMatch[1];
+            }
+            
+            // 匹配 Swift 类: class ClassName
+            const swiftClassMatch = content.match(/class\s+(\w+)/);
+            if (swiftClassMatch) {
+                return swiftClassMatch[1];
+            }
+            
+            // 如果没有匹配到，返回默认名称
+            return className + type;
+        };
+        
+        // 尝试从内容中提取枚举名
+        const extractEnumNameFromContent = (content) => {
+            if (!content) return enumName;
+            
+            // 匹配枚举名: enum class EnumName 或 enum EnumName
+            const enumMatch = content.match(/enum\s+(?:class\s+)?(\w+)/);
+            if (enumMatch) {
+                return enumMatch[1];
+            }
+            
+            return enumName;
+        };
+        
         switch (tabText) {
             case '枚举项':
-                filename = `${enumName}.kt`;
+                const realEnumName = extractEnumNameFromContent(content);
+                filename = `${realEnumName}.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Req 类':
-                filename = `${className}Req.kt`;
+                const kotlinReqName = extractClassNameFromContent(content, 'Req');
+                filename = `${kotlinReqName}.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Rsp 类':
-                filename = `${className}Rsp.kt`;
+                const kotlinRspName = extractClassNameFromContent(content, 'Rsp');
+                filename = `${kotlinRspName}.kt`;
                 mimeType = 'text/x-kotlin';
                 break;
             case 'Dart Req 类':
-                filename = `${className.toLowerCase()}_req.dart`;
+                const dartReqName = extractClassNameFromContent(content, 'Req');
+                filename = `${camelToSnake(dartReqName)}.dart`;
                 mimeType = 'text/x-dart';
                 break;
             case 'Dart Rsp 类':
-                filename = `${className.toLowerCase()}_rsp.dart`;
+                const dartRspName = extractClassNameFromContent(content, 'Rsp');
+                filename = `${camelToSnake(dartRspName)}.dart`;
                 mimeType = 'text/x-dart';
                 break;
             case 'Swift Req 类':
-                filename = `${className}Req.swift`;
+                const swiftReqName = extractClassNameFromContent(content, 'Req');
+                filename = `${swiftReqName}.swift`;
                 mimeType = 'text/x-swift';
                 break;
             case 'Swift Rsp 类':
-                filename = `${className}Rsp.swift`;
+                const swiftRspName = extractClassNameFromContent(content, 'Rsp');
+                filename = `${swiftRspName}.swift`;
                 mimeType = 'text/x-swift';
-                break;
-            case 'Client Service':
-                const clientServiceName = document.getElementById('serviceName')?.value || 'GeneratedService';
-                filename = `${clientServiceName}Client.kt`;
-                mimeType = 'text/x-kotlin';
-                break;
-            case 'Server Service':
-                const serverServiceName = document.getElementById('serviceName')?.value || 'GeneratedService';
-                filename = `${serverServiceName}Server.kt`;
-                mimeType = 'text/x-kotlin';
                 break;
             case '📋 Req 测试JSON':
                 filename = `${className}Req_TestData.json`;

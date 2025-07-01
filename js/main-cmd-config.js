@@ -13,7 +13,7 @@
  * - value: 命令值
  * - enumType: 对应的枚举类型
  * - description: 描述信息
- * - serviceName: 对应的Service类名
+
  * - hexCode: 十六进制命令号
  */
 const MainCmdConfig = {
@@ -22,7 +22,7 @@ const MainCmdConfig = {
         value: 'MainCmd.wifiSetting',
         enumType: 'WifiSettingCmdEnum',
         description: 'WiFi设置相关命令',
-        serviceName: 'WifiSettingService',
+
         hexCode: '0x01'
     },
     
@@ -31,7 +31,7 @@ const MainCmdConfig = {
         value: 'MainCmd.aiRes',
         enumType: 'AiResEnum',
         description: 'AI资源相关命令',
-        serviceName: 'AiResService',
+
         hexCode: '0x02'
     },
     
@@ -40,7 +40,7 @@ const MainCmdConfig = {
         value: 'MainCmd.aiPlay',
         enumType: 'AiPlayEnum',
         description: 'AI播放相关命令',
-        serviceName: 'AiPlayService',
+
         hexCode: '0x03'
     },
     
@@ -50,7 +50,7 @@ const MainCmdConfig = {
     //     value: 'MainCmd.deviceControl',
     //     enumType: 'DeviceControlEnum',
     //     description: '设备控制相关命令',
-    //     serviceName: 'DeviceControlService',
+
     //     hexCode: '0x04'
     // },
     
@@ -58,7 +58,7 @@ const MainCmdConfig = {
     //     value: 'MainCmd.systemConfig',
     //     enumType: 'SystemConfigEnum',
     //     description: '系统配置相关命令',
-    //     serviceName: 'SystemConfigService',
+
     //     hexCode: '0x05'
     // }
 };
@@ -89,13 +89,7 @@ function getMainCmdByEnumType(enumType) {
     return Object.values(MainCmdConfig).find(cmd => cmd.enumType === enumType) || null;
 }
 
-/**
- * 获取所有Service名称
- * @returns {Array} Service名称数组
- */
-function getAllServiceNames() {
-    return Object.values(MainCmdConfig).map(cmd => cmd.serviceName);
-}
+
 
 /**
  * 根据十六进制命令号获取主命令配置
@@ -182,11 +176,7 @@ function populateMainCmdSelect(selectId = 'mainCmd', defaultValue = '') {
 function onMainCmdChange(selectedValue) {
     const cmdConfig = getMainCmdByValue(selectedValue);
     if (cmdConfig) {
-        // 自动更新Service名称
-        const serviceNameElement = document.getElementById('serviceName');
-        if (serviceNameElement) {
-            serviceNameElement.value = cmdConfig.serviceName;
-        }
+
         
         // 显示enumType信息
         const enumTypeElement = document.getElementById('enumType');
@@ -207,14 +197,14 @@ function onMainCmdChange(selectedValue) {
                 <div><strong>枚举类型:</strong> ${cmdConfig.enumType}</div>
                 <div><strong>命令号:</strong> ${cmdConfig.hexCode} (十进制: ${hexToDecimal(cmdConfig.hexCode)})</div>
                 <div><strong>描述:</strong> ${cmdConfig.description}</div>
-                <div><strong>Service:</strong> ${cmdConfig.serviceName}</div>
+
             `;
         }
         
         console.log('MainCmd changed:', {
             value: cmdConfig.value,
             enumType: cmdConfig.enumType,
-            serviceName: cmdConfig.serviceName,
+
             description: cmdConfig.description,
             hexCode: cmdConfig.hexCode,
             decimalCode: hexToDecimal(cmdConfig.hexCode)
@@ -246,7 +236,7 @@ if (typeof window !== 'undefined') {
     window.getMainCmdByValue = getMainCmdByValue;
     window.getMainCmdByEnumType = getMainCmdByEnumType;
     window.getMainCmdByHexCode = getMainCmdByHexCode;
-    window.getAllServiceNames = getAllServiceNames;
+
     window.getAllHexCodes = getAllHexCodes;
     window.hexToDecimal = hexToDecimal;
     window.decimalToHex = decimalToHex;
@@ -260,7 +250,7 @@ if (typeof window !== 'undefined') {
         getMainCmdByValue,
         getMainCmdByEnumType,
         getMainCmdByHexCode,
-        getAllServiceNames,
+
         getAllHexCodes,
         hexToDecimal,
         decimalToHex,

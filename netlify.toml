@@ -1,9 +1,11 @@
 [build]
   publish = "."
-  command = "echo 'No build required'"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
+  # 自动生成的环境变量
+  NETLIFY_BUILD_VERSION = "auto"
 
 [[redirects]]
   from = "/"
@@ -11,19 +13,60 @@
   status = 200
 
 [[headers]]
-  for = "/*"
+  for = "*.html"
   [headers.values]
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
 
 [[headers]]
   for = "*.js"
   [headers.values]
-    Cache-Control = "public, max-age=31536000"
+    Cache-Control = "public, max-age=300, must-revalidate"
+    ETag = "true"
 
 [[headers]]
   for = "*.css"
   [headers.values]
-    Cache-Control = "public, max-age=31536000" 
+    Cache-Control = "public, max-age=300, must-revalidate"
+    ETag = "true"
+
+[[headers]]
+  for = "*.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/VERSION.txt"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/js/*.*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable" 

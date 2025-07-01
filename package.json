@@ -1,0 +1,38 @@
+{
+  "name": "bluetooth-cmd-code-generator",
+  "version": "2.0.0",
+  "description": "蓝牙指令代码生成器 - 自动版本管理",
+  "main": "build-script.js",
+  "scripts": {
+    "build": "node build-script.js",
+    "dev": "python3 -m http.server 8000",
+    "test": "node test-build.js",
+    "version-check": "node -e \"console.log('Version:', require('./version.json').version)\""
+  },
+  "dependencies": {
+    "glob": "^8.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/auto_gen_cmd_code.git"
+  },
+  "keywords": [
+    "bluetooth",
+    "code-generator",
+    "netlify",
+    "version-management",
+    "auto-deployment"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "netlify": {
+    "build": {
+      "command": "npm run build",
+      "publish": "."
+    }
+  }
+} 

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="BUILD_VERSION_PLACEHOLDER">
+    <meta name="build-time" content="BUILD_TIME_PLACEHOLDER">
+    <meta name="app-name" content="蓝牙指令代码生成器">
     <title>蓝牙指令 代码生成器</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -217,6 +220,9 @@
 
     <!-- 引入JSZip库用于创建压缩包 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- 版本管理器 - 必须最先加载 -->
+    <script src="js/version-manager.js"></script>
     
     <!-- JavaScript文件引用 -->
     <script src="js/main-cmd-config.js"></script>

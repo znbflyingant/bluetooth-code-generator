@@ -20,7 +20,8 @@ function mapToSwiftType(kotlinType) {
         'MutableList<Int3>': '[Int32]?',
         'MutableList<Int2>': '[Int16]?',
         'MutableList<Int1>': '[UInt8]?',
-        'MutableList<Byte>': '[UInt8]?'
+        'MutableList<Byte>': '[UInt8]?',
+        'MutableList<ByteArray>': '[Data]?'
     };
     return typeMap[kotlinType] || 'Any?';
 }
@@ -838,6 +839,11 @@ function generateSwiftFromJsonCode(fields) {
                 code += `                ${fieldName} = array.map { $0.uint8Value }\n`;
                 code += `            }\n`;
                 break;
+            case 'MutableList<ByteArray>':
+                code += `            if let base64Array = json["${fieldName}"] as? [String] {\n`;
+                code += `                ${fieldName} = base64Array.compactMap { Data(base64Encoded: $0) }\n`;
+                code += `            }\n`;
+                break;
             default:
                 code += `            // TODO: 处理 ${fieldType} 类型的 ${fieldName} 字段\n`;
                 break;
@@ -888,6 +894,11 @@ function generateSwiftToJsonCode(fields) {
             case 'MutableList<Byte>':
                 code += `            if let ${fieldName} = ${fieldName} {\n`;
                 code += `                json["${fieldName}"] = ${fieldName}\n`;
+                code += `            }\n`;
+                break;
+            case 'MutableList<ByteArray>':
+                code += `            if let ${fieldName} = ${fieldName} {\n`;
+                code += `                json["${fieldName}"] = ${fieldName}.map { $0.base64EncodedString() }\n`;
                 code += `            }\n`;
                 break;
             default:

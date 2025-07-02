@@ -4,21 +4,35 @@
     box-sizing: border-box;
 }
 
+/* 防止内容溢出的保护机制 */
+html {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 .container {
-    max-width: 1600px;
+    max-width: 98vw;
+    width: 95%;
     margin: 0 auto;
     background: white;
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    width: 95%;
+    min-width: 1200px;
 }
 
 .header {
@@ -42,16 +56,23 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
+    min-height: fit-content;
+    width: 100%;
+    overflow: hidden;
 }
 
 .form-section {
     padding: 40px;
     background: #f8f9fa;
+    min-width: 400px;
+    overflow-x: auto;
 }
 
 .output-section {
     padding: 40px;
     background: #fff;
+    min-width: 600px;
+    overflow-x: auto;
 }
 
 .form-group {
@@ -277,6 +298,64 @@ pre.output {
     color: #333;
 }
 
+/* 超大屏幕优化 */
+@media (min-width: 1921px) {
+    .container {
+        max-width: 95vw;
+        min-width: 1800px;
+    }
+    
+    .content {
+        grid-template-columns: 1fr 1.2fr;
+        gap: 2px;
+    }
+    
+    .form-section {
+        padding: 50px;
+        min-width: 500px;
+    }
+    
+    .output-section {
+        padding: 50px;
+        min-width: 800px;
+    }
+    
+    .output {
+        max-height: 1000px;
+        min-height: 800px;
+        font-size: 15px;
+    }
+    
+    .tab {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1400px) and (max-width: 1920px) {
+    .container {
+        max-width: 96vw;
+        min-width: 1400px;
+    }
+    
+    .content {
+        grid-template-columns: 1fr 1.1fr;
+    }
+}
+
+/* 中等屏幕优化 */
+@media (min-width: 1025px) and (max-width: 1399px) {
+    .container {
+        max-width: 98vw;
+        min-width: 1200px;
+    }
+    
+    .content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 1024px) {
     .content {
         grid-template-columns: 1fr;
@@ -285,16 +364,50 @@ pre.output {
     .container {
         width: 98%;
         margin: 10px auto;
+        min-width: auto;
+    }
+}
+
+/* 平板设备优化 */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .container {
+        width: 98%;
+        margin: 10px auto;
+        min-width: auto;
+    }
+    
+    .form-section, .output-section {
+        padding: 30px;
+    }
+    
+    .output {
+        max-height: 600px;
+        min-height: 400px;
+        font-size: 13px;
     }
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        width: 100%;
+        margin: 0;
+        border-radius: 10px;
+        min-width: auto;
+        overflow-x: auto;
+    }
+    
     .content {
         grid-template-columns: 1fr;
     }
     
     .form-section, .output-section {
         padding: 20px;
+        min-width: auto;
+        overflow-x: visible;
     }
     
     .output {
@@ -311,6 +424,8 @@ pre.output {
         margin-right: -20px;
         padding-left: 20px;
         padding-right: 20px;
+        overflow-x: auto;
+        scrollbar-width: thin;
     }
     
     .tab {
@@ -318,12 +433,21 @@ pre.output {
         font-size: 12px;
         min-width: auto;
         flex-shrink: 0;
+        white-space: nowrap;
     }
     
     /* 移动端隐藏渐变遮罩，因为滚动条已经足够提示 */
     .output-tabs::before,
     .output-tabs::after {
         display: none;
+    }
+    
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .header p {
+        font-size: 1em;
     }
 }
 
@@ -437,6 +561,20 @@ pre.output {
     scroll-behavior: smooth;
     padding-bottom: 5px;
     position: relative;
+    min-width: 0;
+}
+
+/* 大屏幕下的标签页优化 */
+@media (min-width: 1400px) {
+    .output-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .tab {
+        flex-shrink: 0;
+        min-width: auto;
+    }
 }
 
 /* 自定义滚动条样式 */

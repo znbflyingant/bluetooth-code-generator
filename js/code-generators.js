@@ -18,7 +18,8 @@ function generateFieldComment(fieldType, field) {
         'MutableList<Int3>': '可变3字节整数列表，节省空间，JSON中为数字数组',
         'MutableList<Int2>': '可变2字节整数列表，节省空间，JSON中为数字数组',
         'MutableList<Int1>': '可变1字节整数列表，节省空间，JSON中为数字数组',
-        'MutableList<Byte>': '可变字节列表，JSON中为数字数组'
+        'MutableList<Byte>': '可变字节列表，JSON中为数字数组',
+        'MutableList<ByteArray>': '可变字节数组列表，每个元素使用4字节长度前缀，JSON中为Base64字符串数组'
     };
     
     // 处理字符串类型的特殊注释

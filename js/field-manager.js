@@ -47,6 +47,9 @@ function addField(type) {
                     <option value="MutableList<Int1>">MutableList&lt;Int1&gt;</option>
                     <option value="MutableList<Byte>">MutableList&lt;Byte&gt;</option>
                 </optgroup>
+                <optgroup label="📦 字节数组列表">
+                    <option value="MutableList<ByteArray>">MutableList&lt;ByteArray&gt;</option>
+                </optgroup>
             </select>
             <button type="button" class="remove-field" onclick="removeField(this)" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 14px; font-weight: bold; flex-shrink: 0;">×</button>
         </div>
@@ -184,7 +187,8 @@ function addAllFieldTypes() {
             { name: 'countList', type: 'MutableList<Int3>', displayName: 'MutableList<Int3>' },
             { name: 'statusList', type: 'MutableList<Int2>', displayName: 'MutableList<Int2>' },
             { name: 'flagList', type: 'MutableList<Int1>', displayName: 'MutableList<Int1>' },
-            { name: 'byteList', type: 'MutableList<Byte>', displayName: 'MutableList<Byte>' }
+            { name: 'byteList', type: 'MutableList<Byte>', displayName: 'MutableList<Byte>' },
+            { name: 'dataList', type: 'MutableList<ByteArray>', displayName: 'MutableList<ByteArray>' }
         ];
         
         // 为Req添加所有字段类型
@@ -257,6 +261,9 @@ function addFieldWithData(type, fieldName, fieldType) {
                     <option value="MutableList<Int2>">MutableList&lt;Int2&gt;</option>
                     <option value="MutableList<Int1>">MutableList&lt;Int1&gt;</option>
                     <option value="MutableList<Byte>">MutableList&lt;Byte&gt;</option>
+                </optgroup>
+                <optgroup label="📦 字节数组列表">
+                    <option value="MutableList<ByteArray>">MutableList&lt;ByteArray&gt;</option>
                 </optgroup>
             </select>
             <button type="button" class="remove-field" onclick="removeField(this)" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; font-size: 14px; font-weight: bold; flex-shrink: 0;">×</button>

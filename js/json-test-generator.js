@@ -119,6 +119,21 @@ function generateTestValue(field) {
             }
             return byteList;
             
+        case 'MutableList<ByteArray>':
+            const byteArrayListSize = Math.floor(Math.random() * 3) + 1;
+            const byteArrayList = [];
+            for (let i = 0; i < byteArrayListSize; i++) {
+                // 为每个ByteArray生成随机长度的字节数据
+                const arrayLength = Math.floor(Math.random() * 20) + 5;
+                const testBytes = [];
+                for (let j = 0; j < arrayLength; j++) {
+                    testBytes.push(Math.floor(Math.random() * 256));
+                }
+                // 转换为Base64字符串
+                byteArrayList.push(btoa(String.fromCharCode.apply(null, testBytes)));
+            }
+            return byteArrayList;
+            
         default:
             return `未知类型${fieldType}的测试值`;
     }
@@ -305,6 +320,7 @@ function generateEmptyTestData(fields, className) {
             case 'MutableList<Int2>':
             case 'MutableList<Int1>':
             case 'MutableList<Byte>':
+            case 'MutableList<ByteArray>':
                 testData[field.name] = [];
                 break;
             default:
@@ -368,6 +384,14 @@ function generateMaxValueTestData(fields, className) {
             case 'MutableList<Byte>':
                 testData[field.name] = Array(10).fill(255);
                 break;
+            case 'MutableList<ByteArray>':
+                // 生成包含大量ByteArray的列表
+                const maxByteArrays = Array(5).fill(null).map(() => {
+                    const largeBytes = Array(100).fill(null).map(() => Math.floor(Math.random() * 256));
+                    return btoa(String.fromCharCode.apply(null, largeBytes));
+                });
+                testData[field.name] = maxByteArrays;
+                break;
             default:
                 testData[field.name] = generateTestValue(field);
         }
@@ -412,6 +436,15 @@ function generateEdgeCaseTestData(fields, className) {
                 break;
             case 'MutableList<Int>':
                 testData[field.name] = [0, -1, 1, 999999, -999999];
+                break;
+            case 'MutableList<ByteArray>':
+                // 生成边界情况的ByteArray列表
+                testData[field.name] = [
+                    btoa(""), // 空字节数组
+                    btoa("A"), // 单字节
+                    btoa("Test🎵边界测试"), // 包含特殊字符
+                    btoa(String.fromCharCode(...Array(50).fill(null).map(() => Math.floor(Math.random() * 256)))) // 随机字节
+                ];
                 break;
             default:
                 testData[field.name] = generateTestValue(field);

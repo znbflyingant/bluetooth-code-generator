@@ -296,6 +296,18 @@ function generateFromJsonCode(fields) {
                 code += `                }\n`;
                 code += `            }\n`;
                 break;
+            case 'MutableList<ByteArray>':
+                code += `            val ${fieldName}Array = jsonObject.optJSONArray("${fieldName}")\n`;
+                code += `            if (${fieldName}Array != null) {\n`;
+                code += `                ${fieldName} = mutableListOf()\n`;
+                code += `                for (i in 0 until ${fieldName}Array.length()) {\n`;
+                code += `                    val base64String = ${fieldName}Array.optString(i)\n`;
+                code += `                    if (base64String.isNotEmpty()) {\n`;
+                code += `                        ${fieldName}?.add(Base64.decode(base64String, Base64.DEFAULT))\n`;
+                code += `                    }\n`;
+                code += `                }\n`;
+                code += `            }\n`;
+                break;
             default:
                 code += `            // TODO: 处理 ${fieldType} 类型的 ${fieldName} 字段\n`;
                 break;
@@ -353,6 +365,13 @@ function generateToJsonCode(fields) {
                 code += `            ${fieldName}?.let {\n`;
                 code += `                val ${fieldName}Array = JSONArray()\n`;
                 code += `                it.forEach { item -> ${fieldName}Array.put(item) }\n`;
+                code += `                jsonObject.put("${fieldName}", ${fieldName}Array)\n`;
+                code += `            }\n`;
+                break;
+            case 'MutableList<ByteArray>':
+                code += `            ${fieldName}?.let {\n`;
+                code += `                val ${fieldName}Array = JSONArray()\n`;
+                code += `                it.forEach { item -> ${fieldName}Array.put(Base64.encodeToString(item, Base64.DEFAULT)) }\n`;
                 code += `                jsonObject.put("${fieldName}", ${fieldName}Array)\n`;
                 code += `            }\n`;
                 break;

@@ -20,7 +20,8 @@ function mapToDartType(kotlinType) {
         'MutableList<Int3>': 'List<int>?',
         'MutableList<Int2>': 'List<int>?',
         'MutableList<Int1>': 'List<int>?',
-        'MutableList<Byte>': 'List<int>?'
+        'MutableList<Byte>': 'List<int>?',
+        'MutableList<ByteArray>': 'List<Uint8List>?'
     };
     return typeMap[kotlinType] || 'dynamic';
 }
@@ -562,6 +563,12 @@ function generateDartFromJsonCode(fields) {
                 code += `        ${fieldName} = ${fieldName}List.cast<int>();\n`;
                 code += `      }\n`;
                 break;
+            case 'MutableList<ByteArray>':
+                code += `      List<dynamic>? ${fieldName}List = json['${fieldName}'] as List<dynamic>?;\n`;
+                code += `      if (${fieldName}List != null) {\n`;
+                code += `        ${fieldName} = ${fieldName}List.map((base64String) => base64Decode(base64String as String)).toList();\n`;
+                code += `      }\n`;
+                break;
             default:
                 code += `      // TODO: 处理 ${fieldType} 类型的 ${fieldName} 字段\n`;
                 break;
@@ -609,6 +616,11 @@ function generateDartToJsonCode(fields) {
             case 'MutableList<Int1>':
             case 'MutableList<Byte>':
                 code += `      if (${fieldName} != null) json['${fieldName}'] = ${fieldName};\n`;
+                break;
+            case 'MutableList<ByteArray>':
+                code += `      if (${fieldName} != null) {\n`;
+                code += `        json['${fieldName}'] = ${fieldName}!.map((byteArray) => base64Encode(byteArray)).toList();\n`;
+                code += `      }\n`;
                 break;
             default:
                 code += `      // TODO: 处理 ${fieldType} 类型的 ${fieldName} 字段\n`;

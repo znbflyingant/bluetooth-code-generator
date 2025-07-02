@@ -751,10 +751,10 @@ class FileDownloader {
                 }
             }
 
-            // 5. 触发代码生成（可选）
-            // this.generateCodeFromImport();
+            // 5. 触发代码生成
+            this.generateCodeFromImport();
 
-            console.log('配置导入完成');
+            console.log('配置导入完成，正在自动生成代码...');
 
         } catch (error) {
             console.error('应用配置失败:', error);
@@ -833,18 +833,110 @@ class FileDownloader {
     }
 
     /**
-     * 从导入的配置生成代码（可选功能）
+     * 从导入的配置自动生成代码
      */
     static generateCodeFromImport() {
         try {
-            // 延迟执行以确保所有字段都已设置
+            console.log('🔄 准备自动生成代码...');
+            
+            // 显示生成进度提示
+            this.showToast('🔄 正在自动生成代码...', 'info');
+            
+            // 延迟执行以确保所有字段都已设置完成
             setTimeout(() => {
-                if (typeof generateCode === 'function') {
-                    generateCode();
+                try {
+                    if (typeof generateCode === 'function') {
+                        // 调用代码生成函数
+                        generateCode();
+                        
+                        // 延迟显示成功提示和切换标签页
+                        setTimeout(() => {
+                            this.showCodeGenerationSuccess();
+                        }, 300);
+                        
+                        console.log('✅ 自动代码生成完成');
+                    } else {
+                        console.warn('⚠️ generateCode 函数未找到');
+                        this.showToast('⚠️ 代码生成功能不可用', 'warning');
+                    }
+                } catch (error) {
+                    console.error('代码生成过程出错:', error);
+                    this.showToast(`❌ 代码生成失败：${error.message}`, 'error');
                 }
-            }, 500);
+            }, 800); // 增加延迟时间确保表单完全更新
+            
         } catch (error) {
             console.error('自动生成代码失败:', error);
+            this.showToast(`❌ 自动生成失败：${error.message}`, 'error');
+        }
+    }
+
+    /**
+     * 显示代码生成成功提示并自动切换到结果标签页
+     */
+    static showCodeGenerationSuccess() {
+        try {
+            // 显示成功提示
+            this.showToast('🎉 代码自动生成成功！', 'success');
+            
+            // 自动切换到第一个代码标签页（枚举项）
+            const firstTab = document.querySelector('.tab');
+            const firstTabContent = document.querySelector('.tab-content');
+            
+            if (firstTab && firstTabContent) {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // 激活第一个标签页
+                firstTab.classList.add('active');
+                firstTabContent.classList.add('active');
+                
+                // 滚动到代码输出区域
+                const outputSection = document.querySelector('.output-section');
+                if (outputSection) {
+                    outputSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+                
+                console.log('✅ 已自动切换到代码查看页面');
+            }
+            
+            // 检查生成的代码内容
+            this.checkGeneratedCodeContent();
+            
+        } catch (error) {
+            console.error('显示成功提示失败:', error);
+        }
+    }
+
+    /**
+     * 检查生成的代码内容并提供反馈
+     */
+    static checkGeneratedCodeContent() {
+        try {
+            const enumCodeElement = document.getElementById('generatedCode');
+            if (enumCodeElement && enumCodeElement.textContent) {
+                const codeText = enumCodeElement.textContent.trim();
+                
+                // 检查是否生成了有效内容
+                if (codeText && codeText !== '// 点击"生成代码"按钮开始生成...') {
+                    const lineCount = codeText.split('\n').length;
+                    console.log(`📊 生成代码统计: ${lineCount} 行`);
+                    
+                    // 可以在这里添加更多的代码质量检查
+                    if (lineCount > 5) {
+                        console.log('✅ 代码生成质量良好');
+                    }
+                } else {
+                    console.warn('⚠️ 生成的代码内容为空');
+                    this.showToast('⚠️ 生成的代码内容为空，请检查配置', 'warning');
+                }
+            }
+        } catch (error) {
+            console.error('检查代码内容失败:', error);
         }
     }
 

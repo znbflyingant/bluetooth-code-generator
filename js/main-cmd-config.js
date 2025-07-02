@@ -43,24 +43,69 @@ const MainCmdConfig = {
 
         hexCode: '0x03'
     },
-    
-    // 可以继续添加更多命令...
-    // 示例：
-    // DEVICE_CONTROL: {
-    //     value: 'MainCmd.deviceControl',
-    //     enumType: 'DeviceControlEnum',
-    //     description: '设备控制相关命令',
+    cmd0: {
+        value: 'MainCmd.cmd0',
+        enumType: 'Cmd0Enum',
+        description: '',
 
-    //     hexCode: '0x04'
-    // },
-    
-    // SYSTEM_CONFIG: {
-    //     value: 'MainCmd.systemConfig',
-    //     enumType: 'SystemConfigEnum',
-    //     description: '系统配置相关命令',
+        hexCode: '0x00'
+    },
+    cmd1: {
+        value: 'MainCmd.cmd1',
+        enumType: 'Cmd1Enum',
+        description: '',
 
-    //     hexCode: '0x05'
-    // }
+        hexCode: '0x01'
+    },
+    cmd2: {
+        value: 'MainCmd.cmd2',
+        enumType: 'Cmd2Enum',
+        description: '',
+
+        hexCode: '0x02'
+    },
+    cmd3: {
+        value: 'MainCmd.cmd3',
+        enumType: 'Cmd3Enum',
+        description: '',
+
+        hexCode: '0x03'
+    },
+    cmd4: {
+        value: 'MainCmd.cmd4',
+        enumType: 'Cmd4Enum',
+        description: '',
+
+        hexCode: '0x04'
+    },
+    cmd5: {
+        value: 'MainCmd.cmd5',
+        enumType: 'Cmd5Enum',
+        description: '',
+
+        hexCode: '0x05'
+    },  
+    cmd6: {
+        value: 'MainCmd.cmd6',
+        enumType: 'Cmd6Enum',
+        description: '',
+
+        hexCode: '0x06'
+    },
+    cmd7: {
+        value: 'MainCmd.cmd7',
+        enumType: 'Cmd7Enum',
+        description: '',
+
+        hexCode: '0x07'
+    },
+    cmd8: {
+        value: 'MainCmd.cmd8',
+        enumType: 'Cmd8Enum',
+        description: '',
+
+        hexCode: '0x08'
+    },
 };
 
 /**

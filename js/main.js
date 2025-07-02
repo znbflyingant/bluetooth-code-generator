@@ -13,7 +13,8 @@ function generateCode() {
     
     const enumName = document.getElementById('enumName').value.trim();
     const mainCmd = document.getElementById('mainCmd').value;
-    const subCmd = document.getElementById('subCmd').value;
+    const subCmdValue = document.getElementById('subCmd').value;
+    const subCmd = `0x${parseInt(subCmdValue).toString(16).toUpperCase().padStart(2, '0')}`;
     const description = document.getElementById('description').value.trim();
     const className = document.getElementById('className').value.trim();
     const minVersion = document.getElementById('minVersion').value || '0';

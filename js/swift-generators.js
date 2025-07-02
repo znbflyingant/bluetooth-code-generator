@@ -325,9 +325,9 @@ class ${className}: NSObject {
         code += `    }\n\n`;
     }
 
-    // 添加fromByteArray方法 (与Dart保持一致的命名)
-    code += `    // 从字节数组反序列化 (兼容Kotlin CmdHelper)
-    func fromByteArray(_ data: Data) {
+    // 添加fromByteArrayByteType方法
+    code += `    // 从字节数组反序列化 (字节格式，兼容Kotlin CmdHelper)
+    func fromByteArrayByteType(_ data: Data) {
         do {
             if !data.isEmpty {
 `;
@@ -338,12 +338,12 @@ class ${className}: NSObject {
 
     code += `            }
         } catch {
-            print("fromByteArray error: \\(error)")
+            print("fromByteArrayByteType error: \\(error)")
         }
     }
 
-    // 序列化为字节数组 (兼容Kotlin CmdHelper)
-    func toByteArray() -> Data {
+    // 序列化为字节数组 (字节格式，兼容Kotlin CmdHelper)
+    func toByteArrayByteType() -> Data {
         do {
 `;
 
@@ -355,9 +355,19 @@ class ${className}: NSObject {
 
     code += `
         } catch {
-            print("toByteArray error: \\(error)")
+            print("toByteArrayByteType error: \\(error)")
             return Data()
         }
+    }
+
+    // 从字节数组反序列化 (调用字节格式方法)
+    func fromByteArray(_ data: Data) {
+        fromByteArrayByteType(data)
+    }
+
+    // 序列化为字节数组 (调用字节格式方法)
+    func toByteArray() -> Data {
+        return toByteArrayByteType()
     }
 
     // 从JSON反序列化
@@ -388,6 +398,38 @@ class ${className}: NSObject {
         } catch {
             print("toJson error: \\(error)")
             return [:]
+        }
+    }
+
+    // 从JSON字节数组反序列化 (兼容Kotlin fromByteArrayJsonType)
+    func fromByteArrayJsonType(_ data: Data) {
+        do {
+            guard let jsonString = String(data: data, encoding: .utf8) else {
+                print("fromByteArrayJsonType error: Unable to decode data to string")
+                return
+            }
+            
+            guard let jsonData = jsonString.data(using: .utf8),
+                  let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] else {
+                print("fromByteArrayJsonType error: Unable to parse JSON")
+                return
+            }
+            
+            fromJson(json)
+        } catch {
+            print("fromByteArrayJsonType error: \\(error)")
+        }
+    }
+
+    // 序列化为JSON字节数组 (兼容Kotlin toByteArrayJsonType)
+    func toByteArrayJsonType() -> Data {
+        do {
+            let json = toJson()
+            let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+            return jsonData
+        } catch {
+            print("toByteArrayJsonType error: \\(error)")
+            return Data()
         }
     }
 

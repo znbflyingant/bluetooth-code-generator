@@ -972,9 +972,9 @@ class FileDownloader {
             // 延迟执行以确保所有字段都已设置完成
             setTimeout(() => {
                 try {
-                    if (typeof generateCode === 'function') {
+                if (typeof generateCode === 'function') {
                         // 调用代码生成函数
-                        generateCode();
+                    generateCode();
                         
                         // 延迟显示成功提示和切换标签页
                         setTimeout(() => {

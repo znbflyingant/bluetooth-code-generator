@@ -92,18 +92,17 @@ class ${className} {
     }
 
     // 添加构造函数
-    code += `  ${className}({`;
+    code += `  ${className}({\n`;
     if (fields.length > 0) {
-        fields.forEach((field, index) => {
-            code += `this.${field.name}`;
-            if (index < fields.length - 1) code += ', ';
+        fields.forEach(field => {
+            code += `    this.${field.name},\n`;
         });
     }
-    code += `});\n\n`;
+    code += `  });\n\n`;
 
-    // 添加fromByteArray方法
-    code += `  // 从字节数组反序列化 (兼容Kotlin CmdHelper)
-  void fromByteArray(Uint8List byteArray) {
+    // 生成fromByteArrayByteType方法
+    code += `  // 从字节数组反序列化 (字节格式，兼容Kotlin CmdHelper)
+  void fromByteArrayByteType(Uint8List byteArray) {
     try {
       if (byteArray.isNotEmpty) {
 `;
@@ -114,12 +113,12 @@ class ${className} {
 
     code += `      }
     } catch (e) {
-      print('fromByteArray error: \$e');
+      print('fromByteArrayByteType error: \$e');
     }
   }
 
-  // 序列化为字节数组 (兼容Kotlin CmdHelper)
-  Uint8List toByteArray() {
+  // 序列化为字节数组 (字节格式，兼容Kotlin CmdHelper)
+  Uint8List toByteArrayByteType() {
     try {
 `;
 
@@ -131,9 +130,19 @@ class ${className} {
 
     code += `
     } catch (e) {
-      print('toByteArray error: \$e');
+      print('toByteArrayByteType error: \$e');
       return Uint8List(0);
     }
+  }
+
+  // 从字节数组反序列化 (调用字节格式方法)
+  void fromByteArray(Uint8List byteArray) {
+    fromByteArrayByteType(byteArray);
+  }
+
+  // 序列化为字节数组 (调用字节格式方法)
+  Uint8List toByteArray() {
+    return toByteArrayByteType();
   }
 
   // 从JSON反序列化
@@ -164,6 +173,29 @@ class ${className} {
     } catch (e) {
       print('toJson error: \$e');
       return {};
+    }
+  }
+
+  // 从JSON字节数组反序列化 (兼容Kotlin fromByteArrayJsonType)
+  void fromByteArrayJsonType(Uint8List byteArray) {
+    try {
+      String jsonString = utf8.decode(byteArray);
+      Map<String, dynamic> jsonObject = jsonDecode(jsonString);
+      fromJson(jsonObject);
+    } catch (e) {
+      print('fromByteArrayJsonType error: \$e');
+    }
+  }
+
+  // 序列化为JSON字节数组 (兼容Kotlin toByteArrayJsonType)
+  Uint8List toByteArrayJsonType() {
+    try {
+      Map<String, dynamic> jsonObject = toJson();
+      String jsonString = jsonEncode(jsonObject);
+      return Uint8List.fromList(utf8.encode(jsonString));
+    } catch (e) {
+      print('toByteArrayJsonType error: \$e');
+      return Uint8List(0);
     }
   }
 

@@ -106,6 +106,41 @@ const MainCmdConfig = {
 
         hexCode: '0x08'
     },
+    cmd9: {
+        value: 'MainCmd.cmd9',
+        enumType: 'Cmd9Enum',
+        description: '',
+
+        hexCode: '0x09'
+    },
+    aiRes: {
+        value: 'MainCmd.aiRes',
+        enumType: 'AiResEnum',
+        description: '',
+
+        hexCode: '0x0A'
+    },
+    aiPlay: {
+        value: 'MainCmd.aiPlay',
+        enumType: 'AiPlayEnum',
+        description: '',
+
+        hexCode: '0x0B'
+    },
+    aifsRes: {
+        value: 'MainCmd.aifsRes',
+        enumType: 'AifsResEnum',
+        description: '',
+
+        hexCode: '0x0C'
+    },
+    aifsPlay: {
+        value: 'MainCmd.aifsPlay',
+        enumType: 'AifsPlayEnum',
+        description: '',
+
+        hexCode: '0x0D'
+    },
 };
 
 /**

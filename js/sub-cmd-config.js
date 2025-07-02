@@ -17,7 +17,7 @@
 const SubCmdConfig = [];
 
 // 生成0到20的十六进制配置
-for (let i = 0; i <= 20; i++) {
+for (let i = 0; i <= 255; i++) {
     const hexValue = '0x' + i.toString(16).padStart(2, '0').toUpperCase();
     SubCmdConfig.push({
         decimal: i,

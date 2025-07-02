@@ -166,6 +166,19 @@ class FileDownloader {
             const readmeContent = this.generateReadmeContent(filesToDownload);
             zip.file("README.md", readmeContent);
             
+            // 添加配置文件
+            try {
+                const configContent = this.generateConfigContent();
+                if (configContent) {
+                    const configFilename = this.generateConfigFilename();
+                    zip.file(configFilename, configContent);
+                    console.log(`✅ 配置文件已添加到压缩包: ${configFilename}`);
+                }
+            } catch (error) {
+                console.warn('添加配置文件失败:', error.message);
+                // 不阻塞压缩包生成，只是跳过配置文件
+            }
+            
             // 生成压缩包
             const zipBlob = await zip.generateAsync({
                 type: "blob",
@@ -178,7 +191,8 @@ class FileDownloader {
             // 生成下载文件名
             const enumName = document.getElementById('enumName')?.value?.trim() || 'Generated';
             const className = document.getElementById('className')?.value?.trim() || 'GeneratedClass';
-            const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            const now = new Date();
+            const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19); // YYYY-MM-DDTHH-mm-ss
             
             // 优先使用enumName，如果没有则使用className，最后使用默认值
             const projectName = enumName || className || 'BluetoothCommand';
@@ -194,7 +208,21 @@ class FileDownloader {
             document.body.removeChild(a);
             URL.revokeObjectURL(downloadUrl);
             
-            this.showToast(`✅ 压缩包已生成：${zipFilename} (${filesToDownload.length} 个文件)`, 'success');
+            // 计算包含配置文件的总文件数
+            let totalFiles = filesToDownload.length + 1; // +1 for README
+            let hasConfig = false;
+            try {
+                const configContent = this.generateConfigContent();
+                if (configContent) {
+                    totalFiles += 1; // +1 for config file
+                    hasConfig = true;
+                }
+            } catch (error) {
+                // 配置文件生成失败，不增加计数
+            }
+            
+            const configNote = hasConfig ? '，含配置文件' : '';
+            this.showToast(`✅ 压缩包已生成：${zipFilename} (${totalFiles} 个文件${configNote})`, 'success');
             
         } catch (error) {
             console.error('创建压缩包失败:', error);
@@ -225,6 +253,7 @@ class FileDownloader {
         readme += `### 📁 swift/\nSwift类文件，包含Req和Rsp数据类以及ByteConverter工具类，用于iOS项目\n\n`;
         readme += `### 📁 test-data/\nJSON测试数据，可用于接口测试和调试\n\n`;
         readme += `### 📄 枚举文件\n枚举定义文件，定义了命令类型和相关常量\n\n`;
+        readme += `### ⚙️ 配置文件\n项目配置文件，可用于重新导入到代码生成器恢复当前配置\n\n`;
         
         readme += `## 文件列表\n\n`;
         files.forEach((file, index) => {
@@ -236,7 +265,8 @@ class FileDownloader {
         readme += `2. **Dart文件**: 复制到Flutter项目的model目录\n`;
         readme += `3. **Swift文件**: 复制到iOS项目的model目录，ByteConverter.swift为必需的工具类\n`;
         readme += `4. **枚举文件**: 根据项目需要放置到相应的包/模块中\n`;
-        readme += `5. **JSON测试数据**: 用于Postman、单元测试等工具进行接口测试\n\n`;
+        readme += `5. **JSON测试数据**: 用于Postman、单元测试等工具进行接口测试\n`;
+        readme += `6. **配置文件**: 可拖拽到代码生成器页面重新导入，恢复当前的所有配置和字段设置\n\n`;
         
         readme += `## 注意事项\n\n`;
         readme += `- Swift项目需要同时引入ByteConverter.swift工具类\n`;
@@ -247,6 +277,103 @@ class FileDownloader {
         readme += `*由蓝牙指令代码生成器自动生成*\n`;
         
         return readme;
+    }
+
+    /**
+     * 生成配置文件内容（用于压缩包）
+     */
+    static generateConfigContent() {
+        try {
+            // 获取基本表单数据
+            const description = document.getElementById('description')?.value?.trim() || '';
+            const enumName = document.getElementById('enumName')?.value?.trim() || '';
+            const mainCmdValue = document.getElementById('mainCmd')?.value || '';
+            const subCmdValue = document.getElementById('subCmd')?.value || '';
+            
+            // 检查必要字段
+            if (!description || !mainCmdValue || (subCmdValue === null || subCmdValue === undefined || subCmdValue === '')) {
+                return null; // 不阻塞压缩包生成，只是跳过配置文件
+            }
+            
+            // 获取MainCmd配置
+            let mainCmdConfig = null;
+            if (typeof getMainCmdByValue === 'function') {
+                mainCmdConfig = getMainCmdByValue(mainCmdValue);
+            }
+            
+            if (!mainCmdConfig) {
+                return null;
+            }
+            
+            // 获取SubCmd配置
+            let subCmdConfig = null;
+            if (typeof getSubCmdByDecimal === 'function') {
+                const subCmdDecimal = parseInt(subCmdValue);
+                subCmdConfig = getSubCmdByDecimal(subCmdDecimal);
+            }
+            
+            if (!subCmdConfig) {
+                return null;
+            }
+            
+            // 获取MainCmd和SubCmd的十六进制值
+            const mainCmdHex = mainCmdConfig.hexCode; // 如 '0x01'
+            const subCmdHex = subCmdConfig.hex;       // 如 '0x00'
+            
+            // 生成配置ID (MainCmd hexCode + SubCmd hexValue)
+            const configId = `${mainCmdHex}_${subCmdHex}`;
+            
+            // 生成配置结构
+            const config = {
+                // 基本信息
+                id: configId,
+                description: description,
+                exportTime: new Date().toISOString(),
+                
+                // 核心命令信息
+                mainCmd: mainCmdHex,
+                subCmd: subCmdHex,
+                
+                // 额外信息
+                enumName: enumName,
+                mainCmdInfo: {
+                    value: mainCmdConfig.value,
+                    enumType: mainCmdConfig.enumType,
+                    serviceName: mainCmdConfig.serviceName,
+                    description: mainCmdConfig.description
+                },
+                subCmdInfo: {
+                    decimal: subCmdConfig.decimal,
+                    display: subCmdConfig.display
+                },
+                
+                // 字段信息
+                fields: {
+                    req: this.extractFieldsConfig('req'),
+                    rsp: this.extractFieldsConfig('rsp')
+                }
+            };
+            
+            return JSON.stringify(config, null, 2);
+            
+        } catch (error) {
+            console.error('生成配置内容失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 生成配置文件名（用于压缩包）
+     */
+    static generateConfigFilename() {
+        const enumName = document.getElementById('enumName')?.value?.trim() || '';
+        const description = document.getElementById('description')?.value?.trim() || '';
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 10); // YYYY-MM-DD
+        
+        // 优先使用enumName，然后是description，最后是默认值
+        const safeProjectName = (enumName || description || 'Config').replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        
+        return `${safeProjectName}_config_${timestamp}.json`;
     }
     
     /**
